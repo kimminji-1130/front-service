@@ -1,104 +1,56 @@
 import { create } from 'zustand';
-import type { MarketState, OrderbookData } from '../types/market';
+import type { MarketState, OrderbookData, OrderbookUnit } from '@/types/market';
 
 const MARKETS = ['KRW-BTC', 'KRW-ETH'];
 
-export const useMarketStore = create<MarketState>((set) => {
-  let ws: WebSocket | null = null;
-  let reconnectTimeout: NodeJS.Timeout | null = null;
+export const useMarketStore = create<MarketState>((set) => ({
+  orderbooks: {},
+  selectedMarket: MARKETS[0],
+  isLoading: false,
+  error: null,
+  currentPrice: null,
 
-  const connect = () => {
-    if (ws?.readyState === WebSocket.OPEN) return;
+  connect: () => {
+    set({ isLoading: true, error: null });
+    // WebSocket 연결 로직 구현
+    // 예시 데이터로 초기화
+    set({
+      orderbooks: {
+        'KRW-BTC': {
+          market: 'KRW-BTC',
+          code: 'KRW-BTC',
+          orderbook_units: [
+            { ask_price: 65500, bid_price: 65400, ask_size: 0.3, bid_size: 0.5 },
+            { ask_price: 65600, bid_price: 65300, ask_size: 0.7, bid_size: 1.2 },
+            { ask_price: 65700, bid_price: 65200, ask_size: 1.1, bid_size: 0.8 },
+          ],
+          timestamp: Date.now(),
+          total_ask_size: 2.1,
+          total_bid_size: 2.5,
+        },
+        'KRW-ETH': {
+          market: 'KRW-ETH',
+          code: 'KRW-ETH',
+          orderbook_units: [
+            { ask_price: 3450, bid_price: 3440, ask_size: 1.5, bid_size: 2.0 },
+            { ask_price: 3460, bid_price: 3430, ask_size: 2.2, bid_size: 1.8 },
+            { ask_price: 3470, bid_price: 3420, ask_size: 1.8, bid_size: 1.5 },
+          ],
+          timestamp: Date.now(),
+          total_ask_size: 5.5,
+          total_bid_size: 5.3,
+        },
+      },
+      isLoading: false,
+    });
+  },
 
-    ws = new WebSocket('wss://api.upbit.com/websocket/v1');
+  disconnect: () => {
+    // WebSocket 연결 해제 로직 구현
+    set({ isLoading: false, error: null });
+  },
 
-    ws.onopen = () => {
-      console.log('WebSocket Connected');
-      set({ error: null });
-
-      // 모든 마켓에 대한 구독 요청
-      const subscribeMessage = [
-        { ticket: 'UNIQUE_TICKET' },
-        {
-          type: 'orderbook',
-          codes: MARKETS,
-          isOnlyRealtime: true
-        }
-      ];
-
-      ws?.send(JSON.stringify(subscribeMessage));
-    };
-
-    ws.onmessage = (event) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const data = JSON.parse(reader.result as string) as OrderbookData;
-          const market = data.code;
-          
-          set((state) => {
-            const orderbooks = { ...state.orderbooks };
-            orderbooks[market] = data;
-
-            // 현재가 계산
-            const orderbookUnits = data.orderbook_units;
-            const currentPrice = orderbookUnits.length > 0
-              ? (orderbookUnits[0].bid_price + orderbookUnits[0].ask_price) / 2
-              : null;
-
-            return {
-              orderbooks,
-              currentPrice,
-              isLoading: false,
-              error: null
-            };
-          });
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-      reader.readAsText(event.data);
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket Error:', error);
-      set({ error: '연결 오류가 발생했습니다.' });
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket Disconnected');
-      set({ error: '연결이 끊어졌습니다.' });
-      
-      // 3초 후 재연결 시도
-      if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
-      }
-      reconnectTimeout = setTimeout(() => {
-        console.log('Attempting to reconnect...');
-        connect();
-      }, 3000);
-    };
-  };
-
-  const disconnect = () => {
-    if (ws) {
-      ws.close();
-      ws = null;
-    }
-    if (reconnectTimeout) {
-      clearTimeout(reconnectTimeout);
-      reconnectTimeout = null;
-    }
-  };
-
-  return {
-    orderbooks: {},
-    selectedMarket: 'KRW-BTC',
-    isLoading: true,
-    error: null,
-    currentPrice: null,
-    connect,
-    disconnect,
-    setSelectedMarket: (market: string) => set({ selectedMarket: market })
-  };
-}); 
+  setSelectedMarket: (market: string) => {
+    set({ selectedMarket: market });
+  },
+})); 
