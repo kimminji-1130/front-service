@@ -48,7 +48,7 @@ const getMarketName = (market: string) => {
   return marketMap[market] || market;
 };
 
-export default function BitcoinTrading() {
+export default function CryptoSummary() {
   const { 
     tickers, 
     selectedMarket, 

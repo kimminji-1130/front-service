@@ -7,7 +7,7 @@ import MarketList from "@/components/market-list"
 import OrderBookTabs from "@/components/order-book-tabs"
 import OrderBook from "@/components/order-book"
 import TradeForm from "@/components/trade-form"
-import BitcoinTrading from "@/components/crypto-trading"
+import CryptoSummary from "@/components/crypto-summary"
 
 export default function ExchangePage() {
   return (
@@ -16,7 +16,7 @@ export default function ExchangePage() {
       <div className="col-span-2 flex flex-col gap-2">
         {/* Bitcoin Trading Section - Full width */}
         <div className="border rounded-md overflow-hidden">
-          <BitcoinTrading />
+          <CryptoSummary />
         </div>
 
         {/* Order Book and Trade Form Section - Split into two columns */}
