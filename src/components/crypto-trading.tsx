@@ -187,7 +187,7 @@ export default function BitcoinTrading() {
 
       {/* Main content */}
       <div className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {/* Price section */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex flex-col">
@@ -207,56 +207,30 @@ export default function BitcoinTrading() {
                 </span>
               </div>
             </div>
-
-            {/* Chart */}
-            <div className="mt-4 h-12 bg-gray-50 rounded">
-              <svg viewBox="0 0 200 50" className="w-full h-full">
-                <path
-                  d="M0,40 L20,38 L40,35 L60,30 L80,32 L100,25 L120,20 L140,15 L160,18 L180,10 L200,12"
-                  fill="none"
-                  stroke="#E0E0E0"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M0,40 L20,38 L40,35 L60,30 L80,32 L100,25 L120,20 L140,15 L160,18 L180,10 L200,12"
-                  fill="none"
-                  stroke={isPriceUp ? "#FF4560" : "#008FFB"}
-                  strokeWidth="2"
-                />
-              </svg>
-            </div>
           </div>
 
           {/* Info section */}
-          <div className="col-span-1">
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">고가</span>
-                <span className="font-medium text-red-600">
-                  {formatPrice(ticker.high_price)}
-                </span>
+          <div className="col-span-1 md:col-span-2">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-4 items-center">
+                <div className="flex items-center">
+                  <span className="text-gray-600">고가</span>
+                  <span className="font-small font-bold text-red-600 whitespace-nowrap ml-2">{formatPrice(ticker.high_price)}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-600 whitespace-nowrap">거래량(24H)</span>
+                  <span className="font-small whitespace-nowrap pl-2">{formatVolume(ticker.acc_trade_volume_24h)} <span className="text-gray-500">{selectedMarket.split('-')[1]}</span></span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">저가</span>
-                <span className="font-medium text-blue-600">
-                  {formatPrice(ticker.low_price)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">거래량(24H)</span>
-                <span className="font-medium">
-                  {formatVolume(ticker.acc_trade_volume_24h)}{' '}
-                  <span className="text-gray-500">
-                    {selectedMarket.split('-')[1]}
-                  </span>
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">거래대금(24H)</span>
-                <span className="font-medium">
-                  {formatPrice(ticker.acc_trade_price_24h)}{' '}
-                  <span className="text-gray-500">KRW</span>
-                </span>
+              <div className="grid grid-cols-2 gap-4 items-center">
+                <div className="flex items-center">
+                  <span className="text-gray-600">저가</span>
+                  <span className="font-small font-bold text-blue-600 whitespace-nowrap ml-2">{formatPrice(ticker.low_price)}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-600 whitespace-nowrap">거래대금(24H)</span>
+                  <span className="font-small whitespace-nowrap pl-2">{formatPrice(ticker.acc_trade_price_24h)} <span className="text-gray-500">KRW</span></span>
+                </div>
               </div>
             </div>
           </div>
