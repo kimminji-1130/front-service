@@ -1,11 +1,113 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect } from "react"
+import { useMarketStore } from "@/store/marketStore"
 import { ChevronDown, Settings } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('ko-KR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(price);
+};
+
+const formatVolume = (volume: number) => {
+  return new Intl.NumberFormat('ko-KR', {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  }).format(volume);
+};
+
+const formatChangeRate = (rate: number) => {
+  return new Intl.NumberFormat('ko-KR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    signDisplay: 'always'
+  }).format(rate * 100);
+};
+
+const getMarketName = (market: string) => {
+  const marketMap: { [key: string]: string } = {
+    'KRW-BTC': '비트코인',
+    'KRW-ETH': '이더리움',
+    'KRW-XRP': '리플',
+  };
+  return marketMap[market] || market;
+};
+
 export default function BitcoinTrading() {
-  const [activeTab, setActiveTab] = useState("price")
+  const { 
+    tickers, 
+    selectedMarket, 
+    isLoading, 
+    error,
+    connect,
+    disconnect,
+    setSelectedMarket 
+  } = useMarketStore();
+
+  useEffect(() => {
+    console.log('Component mounted, connecting to WebSocket...');
+    connect();
+    return () => {
+      console.log('Component unmounting, disconnecting from WebSocket...');
+      disconnect();
+    };
+  }, [connect, disconnect]);
+
+  useEffect(() => {
+    console.log('Current tickers:', tickers);
+    console.log('Selected market:', selectedMarket);
+  }, [tickers, selectedMarket]);
+
+  const ticker = tickers[selectedMarket];
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-5xl mx-auto bg-white border rounded-md shadow p-4">
+        <div className="text-center text-gray-500">로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-5xl mx-auto bg-white border rounded-md shadow p-4">
+        <div className="text-center text-red-500">
+          <p>연결 오류가 발생했습니다.</p>
+          <p className="text-sm mt-2">{error}</p>
+          <button 
+            onClick={connect}
+            className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+          >
+            재연결 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!ticker) {
+    return (
+      <div className="w-full max-w-5xl mx-auto bg-white border rounded-md shadow p-4">
+        <div className="text-center text-gray-500">
+          <p>데이터가 없습니다.</p>
+          <p className="text-sm mt-2">선택된 마켓: {selectedMarket}</p>
+          <button 
+            onClick={connect}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            재연결 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const isPriceUp = ticker.signed_change_rate > 0;
+  const priceColor = isPriceUp ? 'text-red-600' : 'text-blue-600';
+  const changeIcon = isPriceUp ? '▲' : '▼';
 
   return (
     <div className="w-full max-w-5xl mx-auto bg-white border rounded-md shadow">
@@ -16,7 +118,9 @@ export default function BitcoinTrading() {
             <span className="font-bold">₿</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="font-medium text-gray-800">비트코인 BTC/KRW</span>
+            <span className="font-medium text-gray-800">
+              {getMarketName(selectedMarket)} {selectedMarket}
+            </span>
             <ChevronDown className="w-4 h-4 text-gray-500" />
           </div>
         </div>
@@ -51,13 +155,19 @@ export default function BitcoinTrading() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex flex-col">
               <div className="flex items-baseline">
-                <h1 className="text-4xl font-bold text-red-600">146,417,000</h1>
+                <h1 className={`text-4xl font-bold ${priceColor}`}>
+                  {formatPrice(ticker.trade_price)}
+                </h1>
                 <span className="ml-1 text-gray-500">KRW</span>
               </div>
-              <div className="flex items-center mt-1 text-red-600">
-                <span className="font-medium">+0.42%</span>
-                <span className="mx-1">▲</span>
-                <span className="font-medium">616,000</span>
+              <div className={`flex items-center mt-1 ${priceColor}`}>
+                <span className="font-medium">
+                  {formatChangeRate(ticker.signed_change_rate)}%
+                </span>
+                <span className="mx-1">{changeIcon}</span>
+                <span className="font-medium">
+                  {formatPrice(ticker.signed_change_price)}
+                </span>
               </div>
             </div>
 
@@ -73,7 +183,7 @@ export default function BitcoinTrading() {
                 <path
                   d="M0,40 L20,38 L40,35 L60,30 L80,32 L100,25 L120,20 L140,15 L160,18 L180,10 L200,12"
                   fill="none"
-                  stroke="#FF4560"
+                  stroke={isPriceUp ? "#FF4560" : "#008FFB"}
                   strokeWidth="2"
                 />
               </svg>
@@ -85,22 +195,30 @@ export default function BitcoinTrading() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">고가</span>
-                <span className="font-medium text-red-600">146,896,000</span>
+                <span className="font-medium text-red-600">
+                  {formatPrice(ticker.high_price)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">저가</span>
-                <span className="font-medium text-blue-600">143,000,000</span>
+                <span className="font-medium text-blue-600">
+                  {formatPrice(ticker.low_price)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">거래량(24H)</span>
                 <span className="font-medium">
-                  2,438.143 <span className="text-gray-500">BTC</span>
+                  {formatVolume(ticker.acc_trade_volume_24h)}{' '}
+                  <span className="text-gray-500">
+                    {selectedMarket.split('-')[1]}
+                  </span>
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">거래대금(24H)</span>
                 <span className="font-medium">
-                  353,705,214,848 <span className="text-gray-500">KRW</span>
+                  {formatPrice(ticker.acc_trade_price_24h)}{' '}
+                  <span className="text-gray-500">KRW</span>
                 </span>
               </div>
             </div>
@@ -108,5 +226,5 @@ export default function BitcoinTrading() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -9,7 +9,7 @@ import OrderBook from "@/components/order-book"
 import TradeForm from "@/components/trade-form"
 import BitcoinTrading from "@/components/crypto-trading"
 
-export default function Page() {
+export default function ExchangePage() {
   return (
     <main className="grid grid-cols-3 gap-2 min-h-screen p-4 md:p-8">
       {/* Left section - 2/3 width */}

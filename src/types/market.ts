@@ -12,15 +12,34 @@ export interface OrderbookData {
   timestamp: number; // 최근 체결 시각
   total_ask_size: number; // 총 매도 잔량
   total_bid_size: number; // 총 매수 잔량
+  type: string;
+}
+
+export interface TickerData {
+  type: string;
+  code: string;
+  trade_price: number;
+  signed_change_price: number;
+  signed_change_rate: number;
+  acc_trade_volume_24h: number;
+  acc_trade_price_24h: number;
+  high_price: number;
+  low_price: number;
+  prev_closing_price: number;
+  trade_volume: number;
+  timestamp: number;
 }
 
 export interface MarketState {
-  orderbooks: { [key: string]: OrderbookData }; // 주문 테이블
-  selectedMarket: string; // 선택된 마켓
-  isLoading: boolean; // 로딩 상태
-  error: string | null; // 에러 메시지
-  currentPrice: number | null; // 현재 가격
-  connect: () => void; // 웹소켓 연결
-  disconnect: () => void; // 웹소켓 연결 해제
-  setSelectedMarket: (market: string) => void; // 선택된 마켓 설정
+  tickers: Record<string, TickerData>;
+  orderbooks: Record<string, OrderbookData>;
+  selectedMarket: string;
+  isLoading: boolean;
+  error: string | null;
+  currentPrice: number | null;
+  ws: WebSocket | null;
+  subscribedMarkets: Set<string>;
+  connect: () => void;
+  disconnect: () => void;
+  setSelectedMarket: (market: string) => void;
 } 
