@@ -215,11 +215,11 @@ export default function CryptoSummary() {
               <div className="grid grid-cols-2 gap-4 items-center">
                 <div className="flex items-center">
                   <span className="text-gray-600">고가</span>
-                  <span className="font-small font-bold text-red-600 whitespace-nowrap ml-2">{formatPrice(ticker.high_price)}</span>
+                  <span className=" font-bold text-red-600 whitespace-nowrap ml-2">{formatPrice(ticker.high_price)}</span>
                 </div>
                 <div className="flex items-center">
                   <span className="text-gray-600 whitespace-nowrap">거래량(24H)</span>
-                  <span className="font-small whitespace-nowrap pl-2">{formatVolume(ticker.acc_trade_volume_24h)} <span className="text-gray-500">{selectedMarket.split('-')[1]}</span></span>
+                  <span className="font-small whitespace-nowrap pl-2">{formatVolume(ticker.acc_trade_volume_24h)} <span className="tetext-gray-500">{selectedMarket.split('-')[1]}</span></span>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 items-center">
@@ -229,7 +229,7 @@ export default function CryptoSummary() {
                 </div>
                 <div className="flex items-center">
                   <span className="text-gray-600 whitespace-nowrap">거래대금(24H)</span>
-                  <span className="font-small whitespace-nowrap pl-2">{formatPrice(ticker.acc_trade_price_24h)} <span className="text-gray-500">KRW</span></span>
+                  <span className="font-small whitespace-nowrap pl-2">{formatPrice(ticker.acc_trade_price_24h)} <span className="text-sm text-gray-500">KRW</span></span>
                 </div>
               </div>
             </div>

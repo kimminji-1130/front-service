@@ -4,10 +4,9 @@ import SearchBar from "@/components/search-bar"
 import MarketTabs from "@/components/market-tabs"
 import MarketSortBar from "@/components/market-sort-bar"
 import MarketList from "@/components/market-list"
-import OrderBookTabs from "@/components/order-book-tabs"
-import OrderBook from "@/components/order-book"
 import TradeForm from "@/components/trade-form"
 import CryptoSummary from "@/components/crypto-summary"
+import OrderBookView from "@/components/order-book-view"
 
 export default function ExchangePage() {
   return (
@@ -22,8 +21,7 @@ export default function ExchangePage() {
         {/* Order Book and Trade Form Section - Split into two columns */}
         <div className="grid grid-cols-2 gap-2">
           <div className="border rounded-md overflow-hidden">
-            <OrderBookTabs />
-            <OrderBook />
+            <OrderBookView />
           </div>
           <div className="border rounded-md overflow-hidden">
             <TradeForm />
