@@ -1,9 +1,21 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useMarketStore } from "@/store/marketStore"
 import { ChevronDown, Settings } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+const MARKETS = [
+  { code: 'KRW-BTC', name: '비트코인', symbol: '₿' },
+  { code: 'KRW-ETH', name: '이더리움', symbol: 'Ξ' },
+  { code: 'KRW-XRP', name: '리플', symbol: 'XRP' },
+] as const;
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('ko-KR', {
@@ -47,6 +59,8 @@ export default function BitcoinTrading() {
     setSelectedMarket 
   } = useMarketStore();
 
+  const [isOpen, setIsOpen] = useState(false);
+
   useEffect(() => {
     console.log('Component mounted, connecting to WebSocket...');
     connect();
@@ -62,6 +76,7 @@ export default function BitcoinTrading() {
   }, [tickers, selectedMarket]);
 
   const ticker = tickers[selectedMarket];
+  const selectedMarketInfo = MARKETS.find(m => m.code === selectedMarket);
 
   if (isLoading) {
     return (
@@ -115,14 +130,36 @@ export default function BitcoinTrading() {
       <div className="flex items-center justify-between p-3 border-b">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-8 h-8 bg-[#F7931A] text-white rounded-full">
-            <span className="font-bold">₿</span>
+            <span className="font-bold">{selectedMarketInfo?.symbol}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="font-medium text-gray-800">
-              {getMarketName(selectedMarket)} {selectedMarket}
-            </span>
-            <ChevronDown className="w-4 h-4 text-gray-500" />
-          </div>
+          <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+            <DropdownMenuTrigger className="flex items-center gap-1 hover:bg-gray-50 px-2 py-1 rounded">
+              <span className="font-medium text-gray-800">
+                {selectedMarketInfo?.name} {selectedMarket}
+              </span>
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[200px]">
+              {MARKETS.map((market) => (
+                <DropdownMenuItem
+                  key={market.code}
+                  onClick={() => {
+                    setSelectedMarket(market.code);
+                    setIsOpen(false);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <div className="flex items-center justify-center w-6 h-6 bg-[#F7931A] text-white rounded-full text-sm">
+                    {market.symbol}
+                  </div>
+                  <div>
+                    <div className="font-medium">{market.name}</div>
+                    <div className="text-sm text-gray-500">{market.code}</div>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="flex items-center">
