@@ -1,7 +1,5 @@
 "use client"
 
-import { Star } from "lucide-react"
-
 interface CryptoItem {
   id: string
   name: string
@@ -10,7 +8,6 @@ interface CryptoItem {
   change: string
   changePercent: string
   volume: string
-  isFavorite: boolean
   isUp: boolean
   hasWarning?: boolean
 }
@@ -24,8 +21,7 @@ export default function MarketList() {
       price: "2,980",
       change: "-40",
       changePercent: "-1.32%",
-      volume: "414,288백만",
-      isFavorite: true,
+      volume: "414,288 백만",
       isUp: false,
     },
     {
@@ -35,8 +31,7 @@ export default function MarketList() {
       price: "3,538,000",
       change: "-104,000",
       changePercent: "-2.86%",
-      volume: "407,232백만",
-      isFavorite: true,
+      volume: "407,232 백만",
       isUp: false,
       hasWarning: true,
     },
@@ -47,8 +42,7 @@ export default function MarketList() {
       price: "146,391,000",
       change: "590,000",
       changePercent: "+0.40%",
-      volume: "353,712백만",
-      isFavorite: true,
+      volume: "353,712 백만",
       isUp: true,
     },
     {
@@ -58,8 +52,7 @@ export default function MarketList() {
       price: "1,388.0",
       change: "10.0",
       changePercent: "+0.73%",
-      volume: "208,843백만",
-      isFavorite: true,
+      volume: "208,843 백만",
       isUp: true,
     },
     {
@@ -69,8 +62,7 @@ export default function MarketList() {
       price: "1,816",
       change: "-194",
       changePercent: "-9.65%",
-      volume: "197,609백만",
-      isFavorite: true,
+      volume: "197,609 백만",
       isUp: false,
       hasWarning: true,
     },
@@ -81,8 +73,7 @@ export default function MarketList() {
       price: "203,500",
       change: "-6,700",
       changePercent: "-3.19%",
-      volume: "103,524백만",
-      isFavorite: true,
+      volume: "103,524 백만",
       isUp: false,
     },
     {
@@ -92,8 +83,7 @@ export default function MarketList() {
       price: "247.0",
       change: "-3.0",
       changePercent: "-1.20%",
-      volume: "99,836백만",
-      isFavorite: true,
+      volume: "99,836 백만",
       isUp: false,
     },
     {
@@ -103,8 +93,7 @@ export default function MarketList() {
       price: "32.54",
       change: "4.05",
       changePercent: "+14.22%",
-      volume: "87,936백만",
-      isFavorite: true,
+      volume: "87,936 백만",
       isUp: true,
       hasWarning: true,
     },
@@ -115,8 +104,7 @@ export default function MarketList() {
       price: "26.39",
       change: "-3.30",
       changePercent: "-11.11%",
-      volume: "85,751백만",
-      isFavorite: true,
+      volume: "85,751 백만",
       isUp: false,
     },
     {
@@ -126,8 +114,7 @@ export default function MarketList() {
       price: "32.50",
       change: "-4.70",
       changePercent: "-12.56%",
-      volume: "69,034백만",
-      isFavorite: true,
+      volume: "69,034 백만",
       isUp: false,
     },
     {
@@ -137,8 +124,7 @@ export default function MarketList() {
       price: "2,562",
       change: "-6",
       changePercent: "-0.23%",
-      volume: "62,475백만",
-      isFavorite: true,
+      volume: "62,475 백만",
       isUp: false,
       hasWarning: true,
     },
@@ -149,13 +135,10 @@ export default function MarketList() {
       {cryptoList.map((crypto) => (
         <div key={crypto.id} className="flex items-center py-3 border-b text-sm">
           <div className="flex-1 flex items-center px-2">
-            <button className="mr-2">
-              <Star className={`h-4 w-4 ${crypto.isFavorite ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />
-            </button>
             <div>
               <div className="font-medium flex items-center">
                 {crypto.name}
-                {crypto.hasWarning && <span className="ml-1 text-xs bg-orange-500 text-white px-1 rounded">!</span>}
+                {crypto.hasWarning && <span className="ml-1 text-xs bg-orange-500 text-white px-1 rounded">주</span>}
               </div>
               <div className="text-gray-500 text-xs">{crypto.symbol}</div>
             </div>

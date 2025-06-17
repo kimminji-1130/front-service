@@ -7,10 +7,6 @@ export default function MarketTabs() {
 
   const tabs = [
     { id: "원화", label: "원화" },
-    { id: "BTC", label: "BTC" },
-    { id: "USDT", label: "USDT" },
-    { id: "보유", label: "보유" },
-    { id: "관심", label: "관심" },
   ]
 
   return (
