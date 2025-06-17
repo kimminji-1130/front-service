@@ -65,7 +65,7 @@ export default function OrderBookView() {
   });
 
   return (
-    <div className="bg-white h-full flex flex-col">
+    <div className="bg-white h-screen flex flex-col">
       {/* 주문 탭 영역 (헤더) */}
       <div className="flex border-b bg-white">
         <button
@@ -87,10 +87,14 @@ export default function OrderBookView() {
       </div>
 
       {activeTab === '일반호가' ? (
-        <div className="flex flex-col h-full overflow-hidden">
+        <>
+        <div className="flex flex-col h-9/10 overflow-y-scroll">
           <GeneralAskingPrice />
+        </div>
+        <div className="flex flex-col h-1/10">
           <GeneralAskingTotalPrice />
         </div>
+        </>
       ) : null}
     </div>
   )

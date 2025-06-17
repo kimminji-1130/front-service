@@ -23,9 +23,9 @@ export default function GeneralAskingPrice() {
   const formattedPrice = ticker ? (ticker.acc_trade_price_24h / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '-';
   
   return (
-    <div className="bg-white h-1/2 flex flex-col">
+    <div className="bg-white h-full flex flex-col">
       {/* 주문 영역 (본문) */}
-      <div className="grid grid-cols-3 grid-rows-60 overflow-y-auto">
+      <div className="grid grid-cols-3 grid-rows-60">
         {/* 매도호가 영역 */}
         <div className="col-span-2 row-span-30">
           <div className="flex-1">
@@ -94,7 +94,7 @@ export default function GeneralAskingPrice() {
             <div className="flex-1 text-center">체결가</div>
             <div className="flex-1 text-center">체결액(KRW)</div>
           </div>
-          <div className="h-96 overflow-hidden">
+          <div className="h-96 overflow-y-hidden">
             {trades.map((item, index) => (
               <div key={index} className="flex items-center py-1 text-xs hover:bg-gray-100">
                 <div className={`w-28 pr-4 text-center font-medium text-black-500`}>{item.trade_price.toLocaleString()}</div>
