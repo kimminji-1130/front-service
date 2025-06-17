@@ -28,6 +28,18 @@ export interface TickerData {
   prev_closing_price: number;
   trade_volume: number;
   timestamp: number;
+  acc_ask_volume: number;
+  acc_bid_volume: number;
+}
+
+export interface TradeData {
+  type: string;
+  code: string;
+  trade_price: number;
+  trade_volume: number;
+  ask_bid: 'ASK' | 'BID';
+  trade_timestamp: number;
+  timestamp: number;
 }
 
 export interface MarketState {
@@ -39,6 +51,7 @@ export interface MarketState {
   currentPrice: number | null;
   ws: WebSocket | null;
   subscribedMarkets: Set<string>;
+  tradeData: Record<string, TradeData[]>;
   connect: () => void;
   disconnect: () => void;
   setSelectedMarket: (market: string) => void;

@@ -1,5 +1,16 @@
 import { create } from 'zustand';
-import { MarketState, TickerData } from '@/types/market';
+import { MarketState, TickerData, OrderbookData } from '@/types/market';
+
+// TradeData 타입 정의 (Upbit WebSocket trade 메시지 참고)
+export interface TradeData {
+  type: string;
+  code: string;
+  trade_price: number;
+  trade_volume: number;
+  ask_bid: 'ASK' | 'BID';
+  trade_timestamp: number;
+  timestamp: number;
+}
 
 const UPBIT_WS_URL = 'wss://api.upbit.com/websocket/v1';
 const MARKETS = ['KRW-BTC', 'KRW-ETH', 'KRW-XRP'];
@@ -13,6 +24,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   currentPrice: null,
   ws: null,
   subscribedMarkets: new Set(),
+  tradeData: {},
 
   connect: () => {
     const { ws, subscribedMarkets } = get();
@@ -30,7 +42,17 @@ export const useMarketStore = create<MarketState>((set, get) => ({
           type: 'ticker',
           codes: [market],
           isOnlyRealtime: true
-        }))
+        })),
+        ...MARKETS.map(market => ({
+          type: 'orderbook',
+          codes: [market],
+          isOnlyRealtime: true
+        })),
+        ...MARKETS.map(market => ({
+          type: 'trade',
+          codes: [market],
+          isOnlyRealtime: true
+        })),
       ];
       
       websocket.send(JSON.stringify(subscribeMessage));
@@ -66,6 +88,22 @@ export const useMarketStore = create<MarketState>((set, get) => ({
                 [data.code]: data
               }
             }));
+          } else if (data.type === 'trade') {
+            // 실시간 체결 데이터 누적 저장 (오늘 날짜만 유지, 중복 trade_timestamp 방지)
+            set(state => {
+              const today = new Date().toDateString();
+              const prev = (state.tradeData[data.code] || []).filter(
+                t => new Date(t.trade_timestamp).toDateString() === today
+              );
+              const alreadyExists = prev.some(t => t.trade_timestamp === data.trade_timestamp);
+              const updated = alreadyExists ? prev : [data, ...prev];
+              return {
+                tradeData: {
+                  ...state.tradeData,
+                  [data.code]: updated
+                }
+              };
+            });
           }
         } catch (error) {
           console.error('Error processing message:', error);
