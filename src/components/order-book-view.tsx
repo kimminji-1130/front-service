@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useMarketStore } from "@/store/marketStore"
 import GeneralAskingPrice from "./general-asking-price";
 import GeneralAskingTotalPrice from "./general-asking-total-price";
+import CumulativeAskingPrice from "./cumulative-asking-price";
 
 export default function OrderBookView() {
   const { orderbooks, tickers, selectedMarket, connect, tradeData } = useMarketStore();
@@ -95,7 +96,12 @@ export default function OrderBookView() {
           <GeneralAskingTotalPrice />
         </div>
         </>
-      ) : null}
+      ) : (
+        <div className="flex flex-col h-full overflow-y-scroll">
+          <CumulativeAskingPrice />
+        </div>
+      )}
+
     </div>
   )
 }
