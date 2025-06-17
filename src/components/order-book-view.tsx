@@ -1,9 +1,12 @@
 import { ChevronDown } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useMarketStore } from "@/store/marketStore"
+import GeneralAskingPrice from "./general-asking-price";
+import GeneralAskingTotalPrice from "./general-asking-total-price";
 
 export default function OrderBookView() {
   const { orderbooks, tickers, selectedMarket, connect, tradeData } = useMarketStore();
+  const [activeTab, setActiveTab] = useState<'일반호가' | '누적호가'>('일반호가');
 
   useEffect(() => {
     connect();
@@ -18,142 +21,77 @@ export default function OrderBookView() {
   
   // 체결강도 계산
   const tradeStrength = ticker ? ((ticker.acc_bid_volume / ticker.acc_ask_volume) * 100).toFixed(2) : '0.00';
-
+  
   // 거래량: 정수, 거래대금: 백만원 단위(소수점 2자리)
   const formattedVolume = ticker ? Math.floor(ticker.acc_trade_volume_24h).toLocaleString() : '-';
   const formattedPrice = ticker ? (ticker.acc_trade_price_24h / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '-';
-
+  
   // 총액(KRW) 계산
   const askPrice = orderbook?.orderbook_units?.[0]?.ask_price ?? 0;
   const bidPrice = orderbook?.orderbook_units?.[0]?.bid_price ?? 0;
   const totalAskKRW = orderbook ? Math.floor(orderbook.total_ask_size * askPrice).toLocaleString() : '-';
   const totalBidKRW = orderbook ? Math.floor(orderbook.total_bid_size * bidPrice).toLocaleString() : '-';
 
+  // 누적호가 계산
+  // 매도 누적호가 (asks: 높은 가격이 아래로)
+  const asksReversed = asks.slice().reverse();
+  let askCumulativeVolume = 0;
+  let askCumulativeAmount = 0;
+  const askCumulativeRows = asksReversed.map(item => {
+    askCumulativeVolume += item.ask_size;
+    const amount = item.ask_size * item.ask_price;
+    askCumulativeAmount += amount;
+    return {
+      ...item,
+      cumulativeVolume: askCumulativeVolume,
+      amount,
+      cumulativeAmount: askCumulativeAmount,
+    };
+  }).reverse();
+
+  // 매수 누적호가 (bids: 낮은 가격이 아래로)
+  let bidCumulativeVolume = 0;
+  let bidCumulativeAmount = 0;
+  const bidCumulativeRows = bids.map(item => {
+    bidCumulativeVolume += item.bid_size;
+    const amount = item.bid_size * item.bid_price;
+    bidCumulativeAmount += amount;
+    return {
+      ...item,
+      cumulativeVolume: bidCumulativeVolume,
+      amount,
+      cumulativeAmount: bidCumulativeAmount,
+    };
+  });
+
   return (
-    <div className="bg-white h-screen flex flex-col">
+    <div className="bg-white h-full flex flex-col">
       {/* 주문 탭 영역 (헤더) */}
       <div className="flex border-b bg-white">
-        <button className="px-6 py-3 font-medium text-blue-600 border-b-2 border-blue-600">일반호가</button>
-        <button className="px-6 py-3 font-medium text-gray-700">누적호가</button>
+        <button
+          className={`px-6 py-3 font-medium ${activeTab === '일반호가' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700'}`}
+          onClick={() => setActiveTab('일반호가')}
+        >
+          일반호가
+        </button>
+        <button
+          className={`px-6 py-3 font-medium ${activeTab === '누적호가' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700'}`}
+          onClick={() => setActiveTab('누적호가')}
+        >
+          누적호가
+        </button>
         <div className="ml-auto flex items-center pr-2">
           <span className="text-sm text-gray-500">모아보기</span>
           <ChevronDown className="h-4 w-4 text-gray-500" />
         </div>
       </div>
 
-      {/* 주문 영역 (본문) */}
-      <div className="grid grid-cols-3 grid-rows-60 overflow-y-auto">
-        {/* 매도호가 영역 */}
-        <div className="col-span-2 row-span-30">
-          <div className="flex-1">
-            {asks.slice().reverse().map((item, idx) => (
-              <div
-                key={idx}
-                className={`grid grid-cols-2 items-center h-8 px-3 text-sm border-b border-gray-100 hover:bg-gray-100 bg-blue-50`}
-              >
-                <div className="text-gray-700 text-right font-medium pr-2">{item.ask_size.toLocaleString()}</div>
-                <div className="flex items-center gap-x-4 justify-center">
-                  <span className="text-red-600 font-bold">{item.ask_price.toLocaleString()}</span>
-                  <span className="text-red-600 font-medium">{change}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+      {activeTab === '일반호가' ? (
+        <div className="flex flex-col h-full overflow-hidden">
+          <GeneralAskingPrice />
+          <GeneralAskingTotalPrice />
         </div>
-
-        {/* 거래 정보 영역 */}
-        <div className="col-span-1 row-span-30">
-          <div className="bg-gray-50 p-4 h-full flex flex-col justify-end">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm leading-tight">거래량<br />(24H)</span>
-                <div className="text-right">
-                  <div className="font-bold">{formattedVolume}</div>
-                  <div className="text-xs text-gray-500">{selectedMarket.split('-')[1]}</div>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm leading-tight">거래대금<br />(24H)</span>
-                <div className="text-right">
-                  <div className="font-bold">{formattedPrice}</div>
-                  <div className="text-xs text-gray-500">백만원</div>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">고가</span>
-                <div className="text-right">
-                  <div className="font-bold text-red-600">{ticker ? ticker.high_price.toLocaleString() : '-'}</div>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">저가</span>
-                <div className="text-right">
-                  <div className="font-bold text-blue-600">{ticker ? ticker.low_price.toLocaleString() : '-'}</div>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">전일종가</span>
-                <div className="font-bold">{ticker ? ticker.prev_closing_price.toLocaleString() : '-'}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 체결 정보 영역 */}
-        <div className="col-span-1 row-span-30">
-          <div className="flex justify-center p-2">
-            <div className="text-sm">
-              <span className="text-gray-600">체결강도</span>
-              <span className="ml-2 font-bold">+{tradeStrength}%</span>
-            </div>
-          </div>
-          <div className="bg-gray-100 flex text-xs text-gray-600 mb-2 font-medium p-3">
-            <div className="flex-1 text-center">체결가</div>
-            <div className="flex-1 text-center">체결액(KRW)</div>
-          </div>
-          <div className="h-96 overflow-hidden">
-            {trades.map((item, index) => (
-              <div key={index} className="flex items-center py-1 text-xs hover:bg-gray-100">
-                <div className={`w-28 pr-4 text-center font-medium text-black-500`}>{item.trade_price.toLocaleString()}</div>
-                <div className={`flex-1 text-right font-medium pr-4 ${item.ask_bid === 'ASK' ? 'text-blue-600' : 'text-red-600'}`}>
-                  {Math.floor(item.trade_price * item.trade_volume).toLocaleString()}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 매수호가 영역 */}
-        <div className="col-span-2 row-span-30">
-          <div className="flex-1">
-            {bids.map((item, idx) => (
-              <div
-                key={idx}
-                className="grid grid-cols-2 items-center h-8 px-3 text-sm border-b border-gray-100 hover:bg-gray-100 bg-red-50"
-              >
-                <div className="flex items-center gap-x-4 justify-center">
-                  <span className="text-red-600 font-bold">{item.bid_price.toLocaleString()}</span>
-                  <span className="text-red-600 font-medium pr-6">{change}</span>
-                </div>
-                <div className="text-gray-700 text-left font-medium pl-2">{item.bid_size.toLocaleString()}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 총액 영역 */}
-      <div className="grid grid-cols-3 bg-gray-50 p-2">
-        <div className="col-span-1 text-center">
-          <span className="text-gray-600 font-medium">{totalAskKRW}</span>
-        </div>
-        <div className="col-span-1 text-center">
-          <span className="font-bold">총액 <span className="text-xs text-gray-500">(KRW)</span></span>
-        </div>
-        <div className="col-span-1 text-center">
-          <span className="text-gray-600 font-medium">{totalBidKRW}</span>
-        </div>
-      </div>
+      ) : null}
     </div>
   )
 }
