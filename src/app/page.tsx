@@ -19,6 +19,13 @@ export default function Home() {
           <h2 className="text-2xl font-semibold mb-2">Price List</h2>
           <p className="text-muted-foreground">View current cryptocurrency prices</p>
         </Link>
+        <Link 
+          href="/chart" 
+          className="p-6 border rounded-lg hover:bg-accent transition-colors"
+        >
+          <h2 className="text-2xl font-semibold mb-2">Chart</h2>
+          <p className="text-muted-foreground">View cryptocurrency price chart</p>
+        </Link>
       </div>
     </main>
   )
