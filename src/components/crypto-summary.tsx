@@ -11,12 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const MARKETS = [
-  { code: 'KRW-BTC', name: '비트코인', symbol: '₿' },
-  { code: 'KRW-ETH', name: '이더리움', symbol: 'Ξ' },
-  { code: 'KRW-XRP', name: '리플', symbol: 'XRP' },
-] as const;
-
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('ko-KR', {
     minimumFractionDigits: 0,
@@ -39,13 +33,9 @@ const formatChangeRate = (rate: number) => {
   }).format(rate * 100);
 };
 
-const getMarketName = (market: string) => {
-  const marketMap: { [key: string]: string } = {
-    'KRW-BTC': '비트코인',
-    'KRW-ETH': '이더리움',
-    'KRW-XRP': '리플',
-  };
-  return marketMap[market] || market;
+// 티커에서 심볼 추출 (앞 3글자)
+const getSymbolFromTicker = (ticker: string) => {
+  return ticker.split('-')[1].slice(0, 3).toUpperCase();
 };
 
 export default function CryptoSummary() {
@@ -56,19 +46,22 @@ export default function CryptoSummary() {
     error,
     connect,
     disconnect,
-    setSelectedMarket 
+    setSelectedMarket,
+    markets,
+    initializeMarkets
   } = useMarketStore();
 
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     console.log('Component mounted, connecting to WebSocket...');
+    initializeMarkets();
     connect();
     return () => {
       console.log('Component unmounting, disconnecting from WebSocket...');
       disconnect();
     };
-  }, [connect, disconnect]);
+  }, [connect, disconnect, initializeMarkets]);
 
   useEffect(() => {
     console.log('Current tickers:', tickers);
@@ -76,7 +69,7 @@ export default function CryptoSummary() {
   }, [tickers, selectedMarket]);
 
   const ticker = tickers[selectedMarket];
-  const selectedMarketInfo = MARKETS.find(m => m.code === selectedMarket);
+  const selectedMarketInfo = markets.find(m => m.market === selectedMarket);
 
   if (isLoading) {
     return (
@@ -130,31 +123,31 @@ export default function CryptoSummary() {
       <div className="flex items-center justify-between p-3 border-b">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-8 h-8 bg-[#F7931A] text-white rounded-full">
-            <span className="font-bold">{selectedMarketInfo?.symbol}</span>
+            <span className="font-bold">{getSymbolFromTicker(selectedMarket)}</span>
           </div>
           <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
             <DropdownMenuTrigger className="flex items-center gap-1 hover:bg-gray-50 px-2 py-1 rounded">
               <span className="font-medium text-gray-800">
-                {selectedMarketInfo?.name} {selectedMarket}
+                {selectedMarketInfo?.korean_name} {selectedMarket}
               </span>
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[200px]">
-              {MARKETS.map((market) => (
+              {markets.map((market) => (
                 <DropdownMenuItem
-                  key={market.code}
+                  key={market.market}
                   onClick={() => {
-                    setSelectedMarket(market.code);
+                    setSelectedMarket(market.market);
                     setIsOpen(false);
                   }}
                   className="flex items-center gap-2"
                 >
                   <div className="flex items-center justify-center w-6 h-6 bg-[#F7931A] text-white rounded-full text-sm">
-                    {market.symbol}
+                    {getSymbolFromTicker(market.market)}
                   </div>
                   <div>
-                    <div className="font-medium">{market.name}</div>
-                    <div className="text-sm text-gray-500">{market.code}</div>
+                    <div className="font-medium">{market.korean_name}</div>
+                    <div className="text-sm text-gray-500">{market.market}</div>
                   </div>
                 </DropdownMenuItem>
               ))}

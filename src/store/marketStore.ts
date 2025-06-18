@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { MarketState, TickerData, OrderbookData } from '@/types/market';
+import { MarketState, TickerData, OrderbookData, MarketInfo } from '@/types/market';
 
 // TradeData 타입 정의 (Upbit WebSocket trade 메시지 참고)
 export interface TradeData {
@@ -13,7 +13,23 @@ export interface TradeData {
 }
 
 const UPBIT_WS_URL = 'wss://api.upbit.com/websocket/v1';
-const MARKETS = ['KRW-BTC', 'KRW-ETH', 'KRW-XRP'];
+const UPBIT_API_URL = 'https://api.upbit.com/v1';
+
+// 마켓 정보를 가져오는 함수
+const fetchMarkets = async (): Promise<MarketInfo[]> => {
+  try {
+    const response = await fetch(`${UPBIT_API_URL}/market/all?isDetails=true`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch markets');
+    }
+    const markets: MarketInfo[] = await response.json();
+    // KRW 마켓만 필터링
+    return markets.filter(market => market.market.startsWith('KRW-'));
+  } catch (error) {
+    console.error('Error fetching markets:', error);
+    return [];
+  }
+};
 
 export const useMarketStore = create<MarketState>((set, get) => ({
   tickers: {},
@@ -25,30 +41,51 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   ws: null,
   subscribedMarkets: new Set(),
   tradeData: {},
+  markets: [],
 
-  connect: () => {
-    const { ws, subscribedMarkets } = get();
+  initializeMarkets: async () => {
+    set({ isLoading: true });
+    try {
+      const markets = await fetchMarkets();
+      set({ markets, isLoading: false });
+      return markets;
+    } catch (error) {
+      set({ error: '마켓 정보를 가져오는데 실패했습니다.', isLoading: false });
+      return [];
+    }
+  },
+
+  connect: async () => {
+    const { ws, subscribedMarkets, markets } = get();
     if (ws) return;
 
     set({ isLoading: true, error: null });
+    
+    // 마켓 정보가 없으면 초기화
+    if (markets.length === 0) {
+      await get().initializeMarkets();
+    }
+
     const websocket = new WebSocket(UPBIT_WS_URL);
 
     websocket.onopen = () => {
       set({ ws: websocket, isLoading: false });
       
+      const marketCodes = get().markets.map((market: MarketInfo) => market.market);
+      
       const subscribeMessage = [
         { ticket: 'UNIQUE_TICKET' },
-        ...MARKETS.map(market => ({
+        ...marketCodes.map((market: string) => ({
           type: 'ticker',
           codes: [market],
           isOnlyRealtime: true
         })),
-        ...MARKETS.map(market => ({
+        ...marketCodes.map((market: string) => ({
           type: 'orderbook',
           codes: [market],
           isOnlyRealtime: true
         })),
-        ...MARKETS.map(market => ({
+        ...marketCodes.map((market: string) => ({
           type: 'trade',
           codes: [market],
           isOnlyRealtime: true
@@ -56,7 +93,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       ];
       
       websocket.send(JSON.stringify(subscribeMessage));
-      MARKETS.forEach(market => subscribedMarkets.add(market));
+      marketCodes.forEach((market: string) => subscribedMarkets.add(market));
     };
 
     websocket.onmessage = (event) => {
