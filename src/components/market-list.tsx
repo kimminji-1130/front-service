@@ -1,159 +1,68 @@
 "use client"
 
-interface CryptoItem {
-  id: string
-  name: string
-  symbol: string
-  price: string
-  change: string
-  changePercent: string
-  volume: string
-  isUp: boolean
-  hasWarning?: boolean
-}
+import { useMarketStore } from "@/store/marketStore"
+import { MarketInfo } from "@/types/market"
 
 export default function MarketList() {
-  const cryptoList: CryptoItem[] = [
-    {
-      id: "xrp",
-      name: "엑스알피",
-      symbol: "XRP/KRW",
-      price: "2,980",
-      change: "-40",
-      changePercent: "-1.32%",
-      volume: "414,288 백만",
-      isUp: false,
-    },
-    {
-      id: "eth",
-      name: "이더리움",
-      symbol: "ETH/KRW",
-      price: "3,538,000",
-      change: "-104,000",
-      changePercent: "-2.86%",
-      volume: "407,232 백만",
-      isUp: false,
-      hasWarning: true,
-    },
-    {
-      id: "btc",
-      name: "비트코인",
-      symbol: "BTC/KRW",
-      price: "146,391,000",
-      change: "590,000",
-      changePercent: "+0.40%",
-      volume: "353,712 백만",
-      isUp: true,
-    },
-    {
-      id: "usdt",
-      name: "테더",
-      symbol: "USDT/KRW",
-      price: "1,388.0",
-      change: "10.0",
-      changePercent: "+0.73%",
-      volume: "208,843 백만",
-      isUp: true,
-    },
-    {
-      id: "nxps",
-      name: "넥스페이스",
-      symbol: "NXPS/KRW",
-      price: "1,816",
-      change: "-194",
-      changePercent: "-9.65%",
-      volume: "197,609 백만",
-      isUp: false,
-      hasWarning: true,
-    },
-    {
-      id: "sol",
-      name: "솔라나",
-      symbol: "SOL/KRW",
-      price: "203,500",
-      change: "-6,700",
-      changePercent: "-3.19%",
-      volume: "103,524 백만",
-      isUp: false,
-    },
-    {
-      id: "doge",
-      name: "도지코인",
-      symbol: "DOGE/KRW",
-      price: "247.0",
-      change: "-3.0",
-      changePercent: "-1.20%",
-      volume: "99,836 백만",
-      isUp: false,
-    },
-    {
-      id: "orbs",
-      name: "오브스",
-      symbol: "ORBS/KRW",
-      price: "32.54",
-      change: "4.05",
-      changePercent: "+14.22%",
-      volume: "87,936 백만",
-      isUp: true,
-      hasWarning: true,
-    },
-    {
-      id: "rvn",
-      name: "레이븐코인",
-      symbol: "RVN/KRW",
-      price: "26.39",
-      change: "-3.30",
-      changePercent: "-11.11%",
-      volume: "85,751 백만",
-      isUp: false,
-    },
-    {
-      id: "anime",
-      name: "애니메코인",
-      symbol: "ANIME/KRW",
-      price: "32.50",
-      change: "-4.70",
-      changePercent: "-12.56%",
-      volume: "69,034 백만",
-      isUp: false,
-    },
-    {
-      id: "virtual",
-      name: "버추얼프로토콜",
-      symbol: "VIRTUAL/KRW",
-      price: "2,562",
-      change: "-6",
-      changePercent: "-0.23%",
-      volume: "62,475 백만",
-      isUp: false,
-      hasWarning: true,
-    },
-  ]
+  const { markets, tickers } = useMarketStore();
 
+  // 현재가 표시 및 전일 대비 거래량(24H)용 함수
+  const currentAndChangePriceFormat = (beforeNumber: number) => {
+    return new Intl.NumberFormat('ko-KR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(beforeNumber);
+  };
+
+  // 거래대금(24H) 표시 함수
+  const price24hFormat = (price: number) => {
+    return new Intl.NumberFormat('ko-KR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price / 1_000_000);
+  };
+
+  // 전일대비 비율 표시 함수
+  const changeRateFormat = (rate: number) => {
+    return new Intl.NumberFormat('ko-KR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(rate * 100);
+  };
+
+  // 전일대비 비율 색상 표시 함수
+  const changeRatePriceColor = (market: MarketInfo) => {
+    const isPriceUp = tickers[market.market]?.signed_change_rate > 0;
+    return isPriceUp ? 'text-red-600' : 'text-blue-600';
+  };
+  
   return (
-    <div className="w-full">
-      {cryptoList.map((crypto) => (
-        <div key={crypto.id} className="flex items-center py-3 border-b text-sm">
+    <div className="h-screen overflow-y-scroll">
+      {markets.map((market) => (
+        <div key={market.market} className="flex items-center py-3 border-b text-sm">
           <div className="flex-1 flex items-center px-2">
-            <div>
-              <div className="font-medium flex items-center">
-                {crypto.name}
-                {crypto.hasWarning && <span className="ml-1 text-xs bg-orange-500 text-white px-1 rounded">주</span>}
-              </div>
-              <div className="text-gray-500 text-xs">{crypto.symbol}</div>
+            <div className="flex flex-col">
+              {/* 코인 이름 및 티커 표시 */}
+              <div className="font-medium flex items-center">{market.korean_name}</div>
+              <div className="text-gray-500 text-xs">{market.market}</div>
             </div>
           </div>
+          {/* 현재가 표시 */}
           <div className="flex-1 text-right px-2">
-            <div className={`font-medium ${crypto.isUp ? "text-red-500" : "text-blue-500"}`}>{crypto.price}</div>
-            <div className={`text-xs ${crypto.isUp ? "text-red-500" : "text-blue-500"}`}>{crypto.change}</div>
-          </div>
+            <div className={`text-right ${changeRatePriceColor(market)}`}>{currentAndChangePriceFormat(tickers[market.market]?.trade_price)}</div>
+          </div>  
+          {/* 전일대비 거래량(24H) */}
           <div className="flex-1 text-right px-2">
-            <div className={`font-medium ${crypto.isUp ? "text-red-500" : "text-blue-500"}`}>
-              {crypto.changePercent}
+            <div className="flex flex-col">
+              <div className={`text-right ${changeRatePriceColor(market)}`}>{changeRateFormat(tickers[market.market]?.signed_change_rate)}%</div>
+              <div className={`text-right ${changeRatePriceColor(market)}`}>{currentAndChangePriceFormat(tickers[market.market]?.signed_change_price)}</div>
             </div>
           </div>
+          {/* 거래 대금(24H) */}
           <div className="flex-1 text-right px-2">
-            <div className="text-gray-600">{crypto.volume}</div>
+            <div className="text-right">{price24hFormat(tickers[market.market]?.acc_trade_price_24h)}
+              <span className="text-xs text-gray-500">백만</span>
+            </div>
           </div>
         </div>
       ))}
