@@ -86,7 +86,7 @@ export default function CryptoSummary() {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-5xl mx-auto bg-white border rounded-md shadow p-4">
+      <div className="w-full max-w-10xl mx-auto bg-white border rounded-md shadow p-4">
         <div className="text-center text-gray-500">로딩 중...</div>
       </div>
     );
@@ -94,7 +94,7 @@ export default function CryptoSummary() {
 
   if (error) {
     return (
-      <div className="w-full max-w-5xl mx-auto bg-white border rounded-md shadow p-4">
+      <div className="w-full max-w-10xl mx-auto bg-white border rounded-md shadow p-4">
         <div className="text-center text-red-500">
           <p>연결 오류가 발생했습니다.</p>
           <p className="text-sm mt-2">{error}</p>
@@ -111,7 +111,7 @@ export default function CryptoSummary() {
 
   if (!ticker) {
     return (
-      <div className="w-full max-w-5xl mx-auto bg-white border rounded-md shadow p-4">
+      <div className="w-full max-w-10xl mx-auto bg-white border rounded-md shadow p-4">
         <div className="text-center text-gray-500">
           <p>데이터가 없습니다.</p>
           <p className="text-sm mt-2">선택된 마켓: {selectedMarket}</p>
@@ -131,7 +131,7 @@ export default function CryptoSummary() {
   const changeIcon = isPriceUp ? '▲' : '▼';
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white border rounded-md shadow">
+    <div className="w-full max-w-10xl mx-auto bg-white border rounded-md">
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b">
         <div className="flex items-center gap-2">
@@ -153,12 +153,6 @@ export default function CryptoSummary() {
                 className="px-6 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent rounded-none"
               >
                 시세
-              </TabsTrigger>
-              <TabsTrigger
-                value="info"
-                className="px-6 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent rounded-none"
-              >
-                정보
               </TabsTrigger>
             </TabsList>
           </Tabs>
