@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { MarketState, TickerData, OrderbookData, MarketInfo } from '@/types/market';
+import { MarketState, MarketInfo } from '@/types/market';
 
 // TradeData 타입 정의 (Upbit WebSocket trade 메시지 참고)
 export interface TradeData {

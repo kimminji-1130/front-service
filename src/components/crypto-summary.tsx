@@ -1,15 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useMarketStore } from "@/store/marketStore"
-import { ChevronDown, Settings } from "lucide-react"
+import { Settings } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('ko-KR', {
@@ -39,6 +34,8 @@ const getSymbolFromTicker = (ticker: string) => {
 };
 
 export default function CryptoSummary() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { 
     tickers, 
     selectedMarket, 
@@ -51,7 +48,23 @@ export default function CryptoSummary() {
     initializeMarkets
   } = useMarketStore();
 
-  const [isOpen, setIsOpen] = useState(false);
+  // URL 파라미터에서 마켓 정보 읽기
+  useEffect(() => {
+    const marketFromUrl = searchParams.get('market')
+    if (marketFromUrl && markets.length > 0) {
+      // 유효한 마켓인지 확인
+      const isValidMarket = markets.some(m => m.market === marketFromUrl)
+      if (isValidMarket) {
+        setSelectedMarket(marketFromUrl)
+      } else {
+        // 유효하지 않은 마켓인 경우 기본값으로 리다이렉트
+        router.replace('/exchange?market=KRW-BTC')
+      }
+    } else if (!marketFromUrl && markets.length > 0) {
+      // URL 파라미터가 없는 경우 기본값으로 설정
+      router.replace('/exchange?market=KRW-BTC')
+    }
+  }, [searchParams, markets, setSelectedMarket, router])
 
   useEffect(() => {
     console.log('Component mounted, connecting to WebSocket...');
@@ -125,34 +138,11 @@ export default function CryptoSummary() {
           <div className="flex items-center justify-center w-8 h-8 bg-[#F7931A] text-white rounded-full">
             <span className="font-bold">{getSymbolFromTicker(selectedMarket)}</span>
           </div>
-          <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-            <DropdownMenuTrigger className="flex items-center gap-1 hover:bg-gray-50 px-2 py-1 rounded">
-              <span className="font-medium text-gray-800">
-                {selectedMarketInfo?.korean_name} {selectedMarket}
-              </span>
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[200px]">
-              {markets.map((market) => (
-                <DropdownMenuItem
-                  key={market.market}
-                  onClick={() => {
-                    setSelectedMarket(market.market);
-                    setIsOpen(false);
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  <div className="flex items-center justify-center w-6 h-6 bg-[#F7931A] text-white rounded-full text-sm">
-                    {getSymbolFromTicker(market.market)}
-                  </div>
-                  <div>
-                    <div className="font-medium">{market.korean_name}</div>
-                    <div className="text-sm text-gray-500">{market.market}</div>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-1 px-2 py-1">
+            <span className="font-medium text-gray-800">
+              {selectedMarketInfo?.korean_name} {selectedMarket}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center">
