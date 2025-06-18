@@ -35,6 +35,9 @@ export default function RootLayout({
                   <Link href="/chart" className="hover:text-primary">
                     Chart
                   </Link>
+                  <Link href="/exchange" className="hover:text-primary">
+                    Exchange
+                  </Link>
                 </div>
               </div>
             </div>

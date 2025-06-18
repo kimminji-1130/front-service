@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+
 export default function Page() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
@@ -25,6 +27,13 @@ export default function Page() {
         >
           <h2 className="text-2xl font-semibold mb-2">Chart</h2>
           <p className="text-muted-foreground">View cryptocurrency price chart</p>
+        </Link>
+        <Link 
+          href="/exchange" 
+          className="p-6 border rounded-lg hover:bg-accent transition-colors"
+        >
+          <h2 className="text-2xl font-semibold mb-2">Exchange</h2>
+          <p className="text-muted-foreground">View cryptocurrency exchange</p>
         </Link>
       </div>
     </main>
