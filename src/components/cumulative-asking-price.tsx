@@ -1,21 +1,16 @@
-import { ChevronDown } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useMarketStore } from "@/store/marketStore"
 
 export default function CumulativeAskingPrice() {
-  const { orderbooks, tickers, selectedMarket, connect, tradeData } = useMarketStore();
-  const [activeTab, setActiveTab] = useState<'일반호가' | '누적호가'>('일반호가');
+  const { orderbooks, selectedMarket, connect } = useMarketStore();
 
   useEffect(() => {
     connect();
   }, [connect]);
 
   const orderbook = orderbooks[selectedMarket];
-  const ticker = tickers[selectedMarket];
   const asks = orderbook?.orderbook_units?.slice(0, 30) ?? [];
   const bids = orderbook?.orderbook_units?.slice(0, 30) ?? [];
-  const change = ticker ? (ticker.signed_change_rate * 100).toFixed(2) + "%" : "";
-  const trades = tradeData?.[selectedMarket] ?? [];
   
   // 누적호가 계산
   // 매도 누적호가 (asks: 높은 가격이 아래로)

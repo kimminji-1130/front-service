@@ -6,7 +6,6 @@ import { Info } from "lucide-react"
 export default function TradeForm() {
   const [activeTab, setActiveTab] = useState("매수")
   const [price, setPrice] = useState("146,673,000")
-  const [amount, setAmount] = useState("")
   const [selectedPercentage, setSelectedPercentage] = useState("")
 
   const tabs = [
