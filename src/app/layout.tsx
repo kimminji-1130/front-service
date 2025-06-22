@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import Link from "next/link"
 import "./globals.css"
-import Header from "../components/Header"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -29,17 +28,14 @@ export default function RootLayout({
                     Crypto Trading
                   </Link>
                   <div className="flex gap-4">
-                    <Link href="/orderbook" className="hover:text-blue-300">
-                      Order Book
+                    <Link href="/exchange" className="hover:text-blue-300">
+                      거래소
                     </Link>
                     <Link href="/pricelist" className="hover:text-blue-300">
-                      Price List
+                      투자내역
                     </Link>
-                    <Link href="/chart" className="hover:text-blue-300">
-                      Chart
-                    </Link>
-                    <Link href="/exchange" className="hover:text-blue-300">
-                      Exchange
+                    <Link href="/" className="hover:text-blue-300">
+                      보유자산
                     </Link>
                   </div>
                 </div>
@@ -47,10 +43,10 @@ export default function RootLayout({
                 {/* 오른쪽: 로그인/회원가입 */}
                 <div className="flex gap-4">
                   <Link href="/login" className="hover:text-blue-300">
-                    Login
+                    로그인
                   </Link>
                   <Link href="/signup" className="hover:text-blue-300">
-                    Signup
+                    회원가입
                   </Link>
                 </div>
               </div>
@@ -58,6 +54,9 @@ export default function RootLayout({
           </nav>
 
           {children}
+          <footer className="bg-blue-50 text-gray-600 text-right py-4 border-t">
+            <p className="text-sm mr-4">&copy; {new Date().getFullYear()} Crypto Trading Platform. All rights reserved.</p>
+          </footer>
         </div>
       </body>
     </html>
