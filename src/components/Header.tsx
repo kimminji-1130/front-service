@@ -7,22 +7,18 @@ import { useEffect, useState } from 'react';
 export default function Header() {
   const pathname = usePathname();
   
-  // 로그인 상태 확인용 state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // 예: localStorage에 'token'이 있으면 로그인 상태로 간주
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
-  }, [pathname]); // 경로가 바뀔 때마다 확인
+  }, [pathname]);
 
 
-  // 로그아웃 함수
   const handleLogout = () => {
-    localStorage.removeItem('token');  // 토큰 삭제
+    localStorage.removeItem('token'); 
     setIsLoggedIn(false);
-    // 로그아웃 후 홈으로 이동하거나 새로고침 등 추가 작업 가능
-    window.location.href = '/'; // 간단하게 홈으로 이동
+    window.location.href = '/';
   };
 
   return (
@@ -51,17 +47,17 @@ export default function Header() {
                   onClick={handleLogout}
                   className="hover:text-gray-300 cursor-pointer"
                 >
-                  Log out
+                  로그아웃
                 </button>
               </>
             ) : (
               <>
                 {/* 비로그인 상태일 때 */}
                 <Link href="/login" className="hover:text-gray-300">
-                  Log in
+                  로그인
                 </Link>
                 <Link href="/signup" className="hover:text-gray-300">
-                  Sign up
+                  회원가입
                 </Link>
               </>
             )}

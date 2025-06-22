@@ -1,8 +1,8 @@
-
 import React, { useEffect, useRef } from "react";
 import { Chart, TimeScale, Tooltip, Legend, ChartType, LinearScale } from "chart.js/auto";
 import { CandlestickController, CandlestickElement } from 'chartjs-chart-financial';
 import "chartjs-adapter-date-fns"; // 날짜 포맷팅을 위한 어댑터
+import zoomPlugin from 'chartjs-plugin-zoom';
 
 // Chart.js candlestick chart controller 등록
 Chart.register(
@@ -11,17 +11,10 @@ Chart.register(
   TimeScale,
   Tooltip,
   Legend,
-  LinearScale
+  LinearScale,
+  zoomPlugin,
   // 그 외... 등록할 요소들
 )
-
-declare module "chart.js" {
-    interface ChartDatasetProperties<TType extends ChartType, TData> {
-        upColor?: string; // 상승 캔들의 색상
-        downColor?: string; // 하락 캔들의 색상
-        borderColor?: string; // 캔들의 테두리 색상
-    } 
-}
 
 interface Candle {
     x: number; // 시간 (timestamp)
@@ -31,46 +24,58 @@ interface Candle {
     c: number; // 종가
 }
 
-type list = Candle[];
-
+type TimeUnit = 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 interface WriteChartProps {
-    market: string; // 마켓 코드
-    candle: list; // 캔들 데이터 배열
+    market: string;
+    candle: Candle[];
+    canvasRef: React.RefObject<HTMLCanvasElement>;
+    timeUnit: TimeUnit;
 }
 
-
 // candlestick 차트
-const WriteChart: React.FC<WriteChartProps> = ({ market, candle }) => {
+const WriteChart: React.FC<WriteChartProps> = ({ market, candle, canvasRef, timeUnit }) => {
     
     useEffect(() => {
-
-        console.log(candle);
-
         // 캔버스 요소 가져오기
-        const ctx = document.getElementById('candle-chart') as HTMLCanvasElement;
+        const ctx = canvasRef.current;
         
         // 캔버스가 존재하지 않으면 종료
         if (!ctx) return;
 
-        if (Chart.getChart(ctx)) {
-            // 이미 차트가 존재하면 제거
-            Chart.getChart(ctx)?.destroy();
+        // candle 데이터가 없거나 비어있으면 종료
+        if (!candle || candle.length === 0) {
+            console.log("Candle data is empty or undefined");
+            return;
+        }
+
+        // 이미 차트가 존재하면 제거
+        const exisChart = Chart.getChart(ctx);
+        if(exisChart) {
+            exisChart.destroy();
         }
 
         // console.log("차트에 들어가는 data:", candle);
+        console.log(candle.length, "길이");
+        console.log(candle[0], candle[candle.length - 1])
 
         // 차트 생성
-        new Chart(ctx, {
+        const chart = new Chart(ctx, {
             type: "candlestick",
             data: {
                 datasets: [
-
                     {
                         label: market,
                         data: candle,
-                        upColor: "rgba(200, 0, 0, 0.8)",
-                        downColor: "rgba(0, 13, 200,0.8)",
-                        borderColor: "rgba(0, 0, 0, 0.8)",
+                        borderColors: {
+                            up: 'rgba(200, 0, 13, 0.8)',
+                            down: 'rgba(0, 0, 200, 0.8)',
+                            unchanged: 'rgba(143, 143, 143, 1)'
+                        },
+                        backgroundColors: {
+                            up: 'rgba(200, 0, 13, 0.8)',
+                            down: 'rgba(0, 0, 200, 0.8)',
+                            unchanged: 'rgba(143, 143, 143, 1)'
+                        }
                     },
                 ],
             },
@@ -80,12 +85,15 @@ const WriteChart: React.FC<WriteChartProps> = ({ market, candle }) => {
                     x: {
                         type: "time",
                         time: {
-                            unit: "minute",
+                            // day, hour, millisecond, minute, month, quarter, second, week, year
+                            unit: timeUnit,
                         },
                         title: {
                             display: true,
                             text: "시간",
                         },
+                        min: candle.length > 200 ? candle[candle.length - 200].x : candle[0].x, // 초기 표시 범위 시작
+                        max: candle[candle.length - 1].x, // 초기 표시 범위 끝
                     },
                     y: {
                         title: {
@@ -97,6 +105,8 @@ const WriteChart: React.FC<WriteChartProps> = ({ market, candle }) => {
                 },
                 plugins: {
                     tooltip: {
+                        mode: 'nearest',
+                        intersect: true,
                         callbacks: {
                             label: function (context: any) {
                                 const { o, h, l, c } = context.raw;
@@ -104,10 +114,25 @@ const WriteChart: React.FC<WriteChartProps> = ({ market, candle }) => {
                             },
                         },
                     },
+                    zoom: {
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                        },
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true,
+                            },
+                            mode: 'x',
+                        },
+                    },
                 },
             },
-    });
-}, []);
+        });
+    }, [market, candle, timeUnit, canvasRef]);
 
     return null;
 };
