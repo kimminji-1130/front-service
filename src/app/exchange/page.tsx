@@ -14,8 +14,6 @@ import CandleChart from "@/components/CandleChart"
 
 // useSearchParams를 사용하는 컴포넌트들을 별도로 분리
 function ExchangeContent() {
-  const { setSelectedMarket } = useMarketStore();
-
   useEffect(() => {
     const { connect, ws, isConnecting } = useMarketStore.getState();
     if (!ws && !isConnecting) {

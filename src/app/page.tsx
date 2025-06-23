@@ -40,7 +40,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="relative w-full h-[40%] bg-white px-6 py-6 overflow-auto">
+        <div className="relative w-full h-[40%] bg-white px-6 py-20 overflow-auto">
           <div className="max-w-6xl mx-auto space-y-4">
             <div className="text-center space-y-2">
               <h2 className="text-blue-900 text-xl sm:text-xl md:text-2xl font-bold leading-snug">
