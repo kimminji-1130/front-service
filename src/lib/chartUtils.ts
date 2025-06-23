@@ -38,6 +38,8 @@ interface WriteChartProps {
 const WriteChart: React.FC<WriteChartProps> = ({ market, candle, canvasRef, timeUnit }) => {
 
      let chart_data: {x: number, y: number, data: any} | null = null;
+     const chartRef = useRef<Chart | null>(null);
+     const animationFrameRef = useRef<number | null>(null);
     
     useEffect(() => {
         // 캔버스 요소 가져오기
@@ -52,10 +54,36 @@ const WriteChart: React.FC<WriteChartProps> = ({ market, candle, canvasRef, time
             return;
         }
 
-        // 이미 차트가 존재하면 제거
-        const exisChart = Chart.getChart(ctx);
-        if(exisChart) {
-            exisChart.destroy();
+        // 기존 차트가 있고, 같은 마켓과 타임유닛이면 데이터만 업데이트
+        if (chartRef.current && 
+            chartRef.current.data.datasets[0].label === market &&
+            (chartRef.current.options.scales?.x as any)?.time?.unit === timeUnit &&
+            chartRef.current.data.datasets[0].data.length > 0) {
+            
+            // 데이터 업데이트
+            chartRef.current.data.datasets[0].data = candle;
+            
+            // 차트 업데이트 (애니메이션 비활성화로 성능 향상)
+            chartRef.current.update('none');
+            
+            // 스케일 범위 업데이트
+            if (chartRef.current.options.scales?.x) {
+                (chartRef.current.options.scales.x as any).min = candle.length > 200 ? candle[candle.length - 200].x : candle[0].x;
+                (chartRef.current.options.scales.x as any).max = candle[candle.length - 1].x;
+            }
+            
+            return;
+        }
+
+        // 기존 차트 제거
+        if (chartRef.current) {
+            chartRef.current.destroy();
+            chartRef.current = null;
+        }
+
+        // 애니메이션 프레임 정리
+        if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
         }
 
         // 차트 생성
@@ -81,6 +109,9 @@ const WriteChart: React.FC<WriteChartProps> = ({ market, candle, canvasRef, time
             },
             options: {
                 responsive: true,
+                animation: {
+                    duration: 0 // 애니메이션 비활성화로 성능 향상
+                },
                 scales: {
                     x: {
                         type: "time",
@@ -147,12 +178,17 @@ const WriteChart: React.FC<WriteChartProps> = ({ market, candle, canvasRef, time
             },
     });
 
+    chartRef.current = chart;
+
     if(chart.ctx) {
           drawCrosshair();
     }
 
     // 교차선 구현
     function drawCrosshair() {
+        const chart = chartRef.current;
+        if (!chart) return;
+
         const chartArea = chart.chartArea;
         const ctx = chart.ctx;
         const xAxis = chart.scales['x'];
@@ -160,7 +196,7 @@ const WriteChart: React.FC<WriteChartProps> = ({ market, candle, canvasRef, time
 
         
         try {
-            chart.update();
+            chart.update('none'); // 애니메이션 없이 업데이트
         } catch (e: any) {
             if (e.message.includes("Cannot read properties of null (reading 'ownerDocument')")) {
                 // 에러 무시
@@ -208,7 +244,24 @@ const WriteChart: React.FC<WriteChartProps> = ({ market, candle, canvasRef, time
             ctx.stroke();
             ctx.restore();
         }
-        requestAnimationFrame(drawCrosshair);          
+        
+        // 성능 최적화: 마우스가 차트 위에 있을 때만 교차선 그리기
+        if (chart_data) {
+            animationFrameRef.current = requestAnimationFrame(drawCrosshair);
+        } else {
+            animationFrameRef.current = requestAnimationFrame(drawCrosshair);
+        }
+    };
+
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+        if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+        }
+        if (chartRef.current) {
+            chartRef.current.destroy();
+            chartRef.current = null;
+        }
     };
 
 }, [market, candle, timeUnit]);
