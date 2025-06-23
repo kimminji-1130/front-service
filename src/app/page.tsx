@@ -1,8 +1,18 @@
 "use client"
 
 import Link from "next/link";
+import { useEffect } from 'react';
 
 export default function Page() {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+
   return (
     <main className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
       <div className="relative w-full h-screen snap-start">
