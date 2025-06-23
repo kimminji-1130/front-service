@@ -88,14 +88,7 @@ const fetchInitialTrades = async (market: string) => {
 export const useMarketStore = create<MarketState>((set, get) => ({
   tickers: {},
   orderbooks: {},
-  selectedMarket: (() => {
-    // 클라이언트 사이드에서만 로컬 스토리지 접근
-    if (typeof window !== 'undefined') {
-      const savedMarket = localStorage.getItem('selectedMarket');
-      return savedMarket || 'KRW-BTC';
-    }
-    return 'KRW-BTC';
-  })(),
+  selectedMarket: 'KRW-BTC', // 기본값으로 설정
   isLoading: false,
   error: null,
   currentPrice: null,
@@ -182,6 +175,16 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       console.error('Error loading initial data:', error);
       set({ error: '초기 데이터를 가져오는데 실패했습니다.', isLoading: false });
       return { tickers: {}, orderbooks: {}, trades: [] };
+    }
+  },
+
+  // 클라이언트 사이드에서 저장된 마켓 복원
+  restoreSelectedMarket: () => {
+    if (typeof window !== 'undefined') {
+      const savedMarket = localStorage.getItem('selectedMarket');
+      if (savedMarket && savedMarket !== get().selectedMarket) {
+        get().setSelectedMarket(savedMarket);
+      }
     }
   },
 

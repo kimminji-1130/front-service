@@ -16,7 +16,7 @@ import CandleChart from "@/components/CandleChart"
 // useSearchParams를 사용하는 컴포넌트들을 별도로 분리
 function ExchangeContent() {
   const searchParams = useSearchParams();
-  const { connect, ws, isConnecting, markets, selectedMarket, setSelectedMarket } = useMarketStore();
+  const { connect, ws, isConnecting, markets, selectedMarket, setSelectedMarket, restoreSelectedMarket } = useMarketStore();
 
   useEffect(() => {
     const { connect, ws, isConnecting } = useMarketStore.getState();
@@ -29,6 +29,11 @@ function ExchangeContent() {
       disconnect();
     };
   }, []);
+
+  // 클라이언트 사이드에서 저장된 마켓 복원 (hydration 후 실행)
+  useEffect(() => {
+    restoreSelectedMarket();
+  }, [restoreSelectedMarket]);
 
   // URL 파라미터에서 마켓 정보 읽기 및 초기 설정
   useEffect(() => {
