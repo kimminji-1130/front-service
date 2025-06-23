@@ -24,7 +24,6 @@ interface CandleStoreState {
     selected_time: Selected_time;
     timeUnit: TimeUnit; // string에서 TimeUnit으로 변경
 
-    fetchCandles: () => Promise<void>;
     fetchAdditionCandles: () => Promise<void>;
     set_selectedMarket: (selected_market: string) => Promise<void>;
     set_selectedTime: (time: string, cnt: number | null) => Promise<void>
@@ -42,38 +41,10 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
     selected_time: { time: 'minutes', cnt: 30 },
     timeUnit: 'hour' as TimeUnit, // 타입 단언 추가
 
-
-    fetchCandles: async () => {
-        
-        const market_code = get().selected_market;
-        const { time, cnt } = get().selected_time;
-        
-        set({ error: null });
-        try {
-            const response = await getCoin.getCandles({ marketCode: market_code, time: time, timeCnt: cnt });
-            if (!response || !response.data) {
-                throw new Error("No data received from API");
-            }
-
-            // candle 데이터 형식에 맞게 변환
-            const candles = response.data.map((candle: any) => ({
-                x: new Date(candle.candle_date_time_kst).getTime(),
-                o: candle.opening_price,
-                h: candle.high_price,
-                l: candle.low_price,
-                c: candle.trade_price,
-            }));
-            set({ candles });
-        } catch (error: unknown) {
-            set({ error: error instanceof Error ? error.message : String(error) });
-        }
-    },
-
     fetchAdditionCandles: async () => {
 
         const market_code = get().selected_market;
         const { time, cnt } = get().selected_time;
-        const week = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
         let allCandles: Candle[] = [];
         let toDatetime = new Date().toISOString();
@@ -81,6 +52,8 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
         set ({ error: null });
 
         try {
+            let call_cnt = 0;
+
             while(true) {
                 const response = await getCoin.getAdditionCandles({
                     marketCode: market_code,
@@ -107,9 +80,8 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
                 const oldtime = candles[0];
                 toDatetime = new Date(oldtime.x).toISOString();
 
-                if (oldtime.x < week) break;
-
-                if (candles.length < 200) break;
+                call_cnt += 1
+                if (call_cnt >= 5) break;
 
                 await delay(100); // 지연
 
@@ -123,7 +95,7 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
             // 중복 제거 및 정렬
             const resultCandles = Array.from(
                 new Map(updateCandles.map((c) => [c.x, c])).values()
-            );
+            ).sort((a, b) => (a.x - b.x));
 
 
             set({ candles: resultCandles });
