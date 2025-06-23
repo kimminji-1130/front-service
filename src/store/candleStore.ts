@@ -17,28 +17,17 @@ interface Selected_time {
     cnt: number | null;
 }
 
-type TimeUnit = 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
-
 interface CandleStoreState {
     candles: Candle[];
     error: string | null;
     selected_market: string;
     selected_time: Selected_time;
-<<<<<<< HEAD
-    timeUnit: TimeUnit;
-=======
     timeUnit: TimeUnit; // string에서 TimeUnit으로 변경
->>>>>>> upstream/develop
 
     fetchAdditionCandles: () => Promise<void>;
     set_selectedMarket: (selected_market: string) => Promise<void>;
-<<<<<<< HEAD
-    set_selectedTime: (time: string, cnt: number | null) => Promise<void>;
-    set_timeUnit: (timeUnit: TimeUnit) => Promise<void>;
-=======
     set_selectedTime: (time: string, cnt: number | null) => Promise<void>
     set_timeUnit: (timeUnit: TimeUnit) => Promise<void> // 매개변수 타입도 변경
->>>>>>> upstream/develop
 }
 
 async function delay(ms: any) {
@@ -124,11 +113,7 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
         set({ selected_time: { time, cnt } });
     },
 
-<<<<<<< HEAD
-    set_timeUnit: async (timeUnit: TimeUnit) => {
-=======
     set_timeUnit: async (timeUnit: TimeUnit) => { // 매개변수 타입 변경
->>>>>>> upstream/develop
         set({ timeUnit: timeUnit });
     },
 }));
