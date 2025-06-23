@@ -78,7 +78,6 @@ export const CandleChart = () => {
         <div className="relative">
           <select className="px-4 py-2 border rounded-md bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring focus:ring-blue-200" onChange={selectedTime} defaultValue={'minutes_30_hour'}>
             <option key={'minute_3'} value={'minutes_3_minute'}>3분</option>
-            <option key={'minute_5'} value={'minutes_5_minute'}>5분</option>
             <option key={'minute_15'} value={'minutes_15_minute'}>15분</option>
             <option key={'minute_30'} value={'minutes_30_hour'}>30분</option>
           </select>
