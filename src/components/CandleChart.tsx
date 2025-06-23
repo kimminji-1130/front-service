@@ -15,8 +15,8 @@ const ChartComponent = dynamic(() => import("@/lib/chartUtils").then(mod => mod.
 });
 
 export const CandleChart = () => {
-  const { candles, error, selected_market, selected_time, timeUnit, isFetching, set_selectedTime,  set_selectedMarket, set_timeUnit, fetchAdditionCandles } = useCandleStore();
-  const  { markets, initializeMarkets }  = useMarketStore();
+  const { candles, error, selected_time, timeUnit, isFetching, set_selectedTime, set_timeUnit, fetchAdditionCandles } = useCandleStore();
+  const { markets, initializeMarkets, selectedMarket } = useMarketStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // 마켓 초기화 (한 번만 실행)
@@ -26,15 +26,11 @@ export const CandleChart = () => {
 
   // 데이터 가져오기 (의존성 최적화)
   useEffect(() => {
-    if(selected_market) {
-      fetchAdditionCandles();
+    if(selectedMarket) {
+      console.log('Fetching candles for market:', selectedMarket);
+      fetchAdditionCandles(selectedMarket);
     }
-  }, [selected_market, selected_time.time, selected_time.cnt, fetchAdditionCandles]);
-
-  // 이벤트 핸들러 메모이제이션
-  const selectedMarket = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    set_selectedMarket(e.target.value);
-  }, [set_selectedMarket]);
+  }, [selectedMarket, selected_time.time, selected_time.cnt, fetchAdditionCandles]);
 
   const selectedTime = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.options[e.target.selectedIndex];
@@ -62,6 +58,12 @@ export const CandleChart = () => {
   // 기본값 메모이제이션
   const defaultTimeValue = useMemo(() => 'minutes_30_hour', []);
   
+  // 현재 마켓의 한글 이름 찾기
+  const currentMarketName = useMemo(() => {
+    const market = markets.find(m => m.market === selectedMarket);
+    return market?.korean_name || selectedMarket;
+  }, [markets, selectedMarket]);
+  
   if (error) {
     return <div className="text-red-500 p-4">Error: {error}</div>;
   }
@@ -70,19 +72,10 @@ export const CandleChart = () => {
     <div>
       
       <div className="flex items-center gap-4 p-4 bg-gray-100 border rounded-lg shadow-lg"> 
-        <div className="relative">
-          <select 
-            className="px-4 py-2 border rounded-md bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring focus:ring-blue-200" 
-            value={selected_market} 
-            onChange={selectedMarket}
-            disabled={isFetching}
-          >
-            {markets.map((market) => (
-              <option key={market.market} value={market.market}>
-                {market.korean_name}
-              </option>
-            ))}
-          </select>
+        <div className="flex items-center">
+          <span className="text-lg font-semibold text-gray-700 mr-4">
+            {currentMarketName}
+          </span>
         </div>
 
         <div className="relative">
@@ -121,7 +114,8 @@ export const CandleChart = () => {
 
       {candles.length > 0 && (
         <ChartComponent 
-          market={selected_market} 
+          key={`${selectedMarket}-${selected_time.time}-${selected_time.cnt}`}
+          market={selectedMarket} 
           candle={candles} 
           canvasRef={canvasRef} 
           timeUnit={timeUnit as 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'}

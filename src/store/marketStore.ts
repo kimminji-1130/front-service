@@ -88,7 +88,14 @@ const fetchInitialTrades = async (market: string) => {
 export const useMarketStore = create<MarketState>((set, get) => ({
   tickers: {},
   orderbooks: {},
-  selectedMarket: 'KRW-BTC',
+  selectedMarket: (() => {
+    // 클라이언트 사이드에서만 로컬 스토리지 접근
+    if (typeof window !== 'undefined') {
+      const savedMarket = localStorage.getItem('selectedMarket');
+      return savedMarket || 'KRW-BTC';
+    }
+    return 'KRW-BTC';
+  })(),
   isLoading: false,
   error: null,
   currentPrice: null,
@@ -375,9 +382,38 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     }, 0);
   },
 
-  setSelectedMarket: (market: string) => {
-    const { tickers } = get();
+  setSelectedMarket: async (market: string) => {
+    const { tickers, tradeData } = get();
     const currentPrice = tickers[market]?.trade_price || null;
-    set({ selectedMarket: market, currentPrice });
+    
+    // URL 파라미터 업데이트 (브라우저 히스토리에 추가하지 않음)
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('market', market);
+      window.history.replaceState({}, '', url.toString());
+      
+      // 로컬 스토리지에도 저장
+      localStorage.setItem('selectedMarket', market);
+    }
+    
+    // 선택된 마켓의 체결 데이터가 없으면 로드
+    if (!tradeData[market]) {
+      try {
+        const trades = await fetchInitialTrades(market);
+        set(state => ({
+          selectedMarket: market, 
+          currentPrice,
+          tradeData: {
+            ...state.tradeData,
+            [market]: trades
+          }
+        }));
+      } catch (error) {
+        console.error('Error loading trades for selected market:', error);
+        set({ selectedMarket: market, currentPrice });
+      }
+    } else {
+      set({ selectedMarket: market, currentPrice });
+    }
   }
 })); 

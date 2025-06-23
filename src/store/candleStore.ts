@@ -20,14 +20,13 @@ interface Selected_time {
 interface CandleStoreState {
     candles: Candle[];
     error: string | null;
-    selected_market: string;
     selected_time: Selected_time;
     timeUnit: TimeUnit; // string에서 TimeUnit으로 변경
     lastFetchTime: number; // 마지막 데이터 가져온 시간
     isFetching: boolean; // 데이터 가져오는 중인지 확인
+    currentMarket: string; // 현재 선택된 마켓
 
-    fetchAdditionCandles: () => Promise<void>;
-    set_selectedMarket: (selected_market: string) => Promise<void>;
+    fetchAdditionCandles: (market: string) => Promise<void>;
     set_selectedTime: (time: string, cnt: number | null) => Promise<void>
     set_timeUnit: (timeUnit: TimeUnit) => Promise<void> // 매개변수 타입도 변경
 }
@@ -39,13 +38,13 @@ async function delay(ms: any) {
 export const useCandleStore = create<CandleStoreState>((set, get) => ({
     candles: [],
     error: null,
-    selected_market: 'KRW-BTC',
     selected_time: { time: 'minutes', cnt: 30 },
     timeUnit: 'hour' as TimeUnit, // 타입 단언 추가
     lastFetchTime: 0,
     isFetching: false,
+    currentMarket: '',
 
-    fetchAdditionCandles: async () => {
+    fetchAdditionCandles: async (market: string) => {
         const state = get();
         
         // 이미 데이터를 가져오는 중이면 중복 요청 방지
@@ -53,15 +52,24 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
             return;
         }
 
-        const market_code = state.selected_market;
         const { time, cnt } = state.selected_time;
 
-        // 캐시된 데이터가 있고, 30초 이내에 같은 마켓/시간으로 요청했다면 캐시 사용
-        const now = Date.now();
-        if (state.candles.length > 0 && 
-            now - state.lastFetchTime < 30000 && 
-            state.selected_market === market_code) {
-            return;
+        // 마켓이 변경되었으면 캐시 무효화
+        if (state.currentMarket !== market) {
+            set({ 
+                currentMarket: market,
+                candles: [],
+                lastFetchTime: 0,
+                isFetching: true,
+                error: null 
+            });
+        } else {
+            // 캐시된 데이터가 있고, 3분 이내에 같은 마켓/시간으로 요청했다면 캐시 사용
+            const now = Date.now();
+            if (state.candles.length > 0 && 
+                now - state.lastFetchTime < 180000) {
+                return;
+            }
         }
 
         // 로딩 상태가 아직 설정되지 않았다면 설정
@@ -78,7 +86,7 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
 
             while(call_cnt < maxCalls) {
                 const response = await getCoin.getAdditionCandles({
-                    marketCode: market_code,
+                    marketCode: market,
                     time: time,
                     timeCnt: cnt,
                     datetime: toDatetime,
@@ -141,7 +149,7 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
 
             set({ 
                 candles: resultCandles, 
-                lastFetchTime: now,
+                lastFetchTime: Date.now(),
                 isFetching: false 
             });
 
@@ -151,16 +159,6 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
                 isFetching: false 
             });
         }
-    },
-
-    set_selectedMarket: async (market: string) => {
-        // 마켓이 변경되면 캐시 무효화
-        set({ 
-            selected_market: market,
-            lastFetchTime: 0, // 캐시 무효화
-            candles: [], // 기존 데이터 초기화
-            isFetching: true // 로딩 상태 시작
-        });
     },
 
     set_selectedTime: async (time: string, cnt: number | null) => {
