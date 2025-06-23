@@ -39,9 +39,6 @@ export const CandleChart = () => {
     const time = selected.value.split("_");
 
     set_selectedTime(time[0], Number(time[1]));
-<<<<<<< HEAD
-    set_timeUnit(time[2] as TimeUnit);
-=======
     
     // timeUnit을 TimeUnit 타입으로 캐스팅
     const timeUnitMap: Record<string, 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'> = {
@@ -57,7 +54,6 @@ export const CandleChart = () => {
     
     const mappedTimeUnit = timeUnitMap[time[2]] || 'hour';
     set_timeUnit(mappedTimeUnit);
->>>>>>> upstream/develop
 
   }
   
