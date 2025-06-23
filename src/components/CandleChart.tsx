@@ -28,7 +28,7 @@ export const CandleChart = () => {
     if(selected_market) {
       fetchAdditionCandles();
     }
-  }, [selected_market, selected_time]);
+  }, [selected_market, selected_time, fetchAdditionCandles]);
 
   const selectedMarket = (e: React.ChangeEvent<HTMLSelectElement>) => {
     set_selectedMarket(e.target.value);
@@ -39,7 +39,25 @@ export const CandleChart = () => {
     const time = selected.value.split("_");
 
     set_selectedTime(time[0], Number(time[1]));
+<<<<<<< HEAD
     set_timeUnit(time[2] as TimeUnit);
+=======
+    
+    // timeUnit을 TimeUnit 타입으로 캐스팅
+    const timeUnitMap: Record<string, 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'> = {
+      'second': 'second',
+      'minute': 'minute', 
+      'hour': 'hour',
+      'day': 'day',
+      'week': 'week',
+      'month': 'month',
+      'quarter': 'quarter',
+      'year': 'year'
+    };
+    
+    const mappedTimeUnit = timeUnitMap[time[2]] || 'hour';
+    set_timeUnit(mappedTimeUnit);
+>>>>>>> upstream/develop
 
   }
   
@@ -73,7 +91,12 @@ export const CandleChart = () => {
       
       <canvas ref={canvasRef} id="candle-chart" width={800} height={400}></canvas>
 
-      <ChartComponent market={selected_market} candle={candles} canvasRef={canvasRef} timeUnit={timeUnit}></ChartComponent>
+      <ChartComponent 
+        market={selected_market} 
+        candle={candles} 
+        canvasRef={canvasRef} 
+        timeUnit={timeUnit as 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'}
+      ></ChartComponent>
       
     </div>
   )

@@ -1,5 +1,8 @@
 import { create } from 'zustand';
-import { getCoin } from '../api/api.js';
+import { getCoin } from '@/lib/upbitApi';
+
+// TimeUnit 타입 정의 추가
+type TimeUnit = 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 interface Candle {
     x: number; // 시간 timestamp
@@ -21,12 +24,21 @@ interface CandleStoreState {
     error: string | null;
     selected_market: string;
     selected_time: Selected_time;
+<<<<<<< HEAD
     timeUnit: TimeUnit;
+=======
+    timeUnit: TimeUnit; // string에서 TimeUnit으로 변경
+>>>>>>> upstream/develop
 
     fetchAdditionCandles: () => Promise<void>;
     set_selectedMarket: (selected_market: string) => Promise<void>;
+<<<<<<< HEAD
     set_selectedTime: (time: string, cnt: number | null) => Promise<void>;
     set_timeUnit: (timeUnit: TimeUnit) => Promise<void>;
+=======
+    set_selectedTime: (time: string, cnt: number | null) => Promise<void>
+    set_timeUnit: (timeUnit: TimeUnit) => Promise<void> // 매개변수 타입도 변경
+>>>>>>> upstream/develop
 }
 
 async function delay(ms: any) {
@@ -38,7 +50,7 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
     error: null,
     selected_market: 'KRW-BTC',
     selected_time: { time: 'minutes', cnt: 30 },
-    timeUnit: 'hour',
+    timeUnit: 'hour' as TimeUnit, // 타입 단언 추가
 
     fetchAdditionCandles: async () => {
 
@@ -100,7 +112,7 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
             set({ candles: resultCandles });
 
         } catch (error: unknown) {
-            set({ error: error instanceof Error ? error.message: String(error) });
+            set({ error: error instanceof Error ? error.message : String(error) });
         }
     },
 
@@ -112,7 +124,11 @@ export const useCandleStore = create<CandleStoreState>((set, get) => ({
         set({ selected_time: { time, cnt } });
     },
 
+<<<<<<< HEAD
     set_timeUnit: async (timeUnit: TimeUnit) => {
+=======
+    set_timeUnit: async (timeUnit: TimeUnit) => { // 매개변수 타입 변경
+>>>>>>> upstream/develop
         set({ timeUnit: timeUnit });
     },
 }));
