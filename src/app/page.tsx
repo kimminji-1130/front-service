@@ -1,10 +1,11 @@
+
 "use client"
 
 import Link from "next/link";
 
 export default function Page() {
   return (
-    <main className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth">
+    <main className="min-h-screen">
       <div className="relative w-full h-screen snap-start">
         <div className="relative w-full h-[60%] overflow-hidden">
           <img
@@ -40,7 +41,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="relative w-full h-[40%] bg-white px-6 py-20 overflow-auto">
+        <div className="relative w-full h-[40%] bg-white px-6 py-6 overflow-auto">
           <div className="max-w-6xl mx-auto space-y-4">
             <div className="text-center space-y-2">
               <h2 className="text-blue-900 text-xl sm:text-xl md:text-2xl font-bold leading-snug">
@@ -69,7 +70,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="relative w-full h-screen snap-start bg-blue-50 flex items-center justify-center px-6 py-12">
+      <div className="relative w-full h-screen bg-blue-50 flex items-center justify-center px-6 py-12">
         <div className="max-w-6xl w-full flex flex-col items-center text-center space-y-6">
           <div className="text-4xl sm:text-5xl font-extrabold text-blue-900 opacity-90">01</div>
           <h2 className="text-blue-950 text-2xl sm:text-3xl md:text-4xl font-bold leading-snug">
@@ -87,11 +88,9 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="relative w-full h-screen snap-start bg-white flex items-center justify-center px-6 py-12">
+      <div className="relative w-full h-screen bg-white flex items-center justify-center px-6 py-12">
         <div className="max-w-6xl w-full flex flex-col items-center text-center space-y-6">
-
           <div className="text-4xl sm:text-5xl font-extrabold text-blue-900 opacity-90">02</div>
-
           <h2 className="text-blue-950 text-2xl sm:text-3xl md:text-4xl font-bold leading-snug">
             나의 모든 거래, 투명하게 기록!
           </h2>
@@ -107,7 +106,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="relative w-full h-screen snap-start bg-blue-50 flex items-center justify-center px-6 py-12">
+      <div className="relative w-full h-screen bg-blue-50 flex items-center justify-center px-6 py-12">
         <div className="max-w-6xl w-full flex flex-col items-center text-center space-y-6">
           <div className="text-4xl sm:text-5xl font-extrabold text-blue-900 opacity-90">03</div>
           <h2 className="text-blue-950 text-2xl sm:text-3xl md:text-4xl font-bold leading-snug">
@@ -124,6 +123,30 @@ export default function Page() {
           />
         </div>
       </div>
+
+      <div className="relative w-full h-[50vh] px-6 py-10 bg-blue-50 flex flex-col items-center justify-center">
+        <div className="flex-1 flex items-center justify-center w-full">
+          <div className="max-w-4xl w-full mx-auto space-y-8 text-center">
+            <h2 className="text-blue-950 text-2xl sm:text-3xl font-bold leading-snug">
+              실전 같은 연습, 지금부터 시작하세요!<br />
+              리스크 없이 투자 감각을 키워보는 가장 스마트한 방법
+            </h2>
+            <div className="flex justify-center flex-wrap gap-4">
+              <Link href="/exchange">
+                <button className="px-6 py-3 bg-blue-600 text-white text-sm font-semibold rounded-md shadow hover:bg-blue-700 transition">
+                  지금 바로 시작하세요
+                </button>
+              </Link>
+              <Link href="/signup">
+                <button className="px-6 py-3 bg-white text-blue-700 border border-blue-700 text-sm font-semibold rounded-md shadow hover:bg-blue-50 transition">
+                  회원가입
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   )
 }
+
