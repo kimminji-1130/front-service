@@ -5,24 +5,18 @@ import MarketTabs from "@/components/MarketTabs";
 import SearchBar from "@/components/SearchBar";
 import MarketList from "@/components/MarketList";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function InvestmentsPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("거래내역");
 
   const tabs = ["거래내역", "미체결"];
 
   // URL parameter에서 초기 탭 설정
   useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab === 'wait-orders') {
-      setActiveTab("미체결");
-    } else {
-      setActiveTab("거래내역");
-    }
-  }, [searchParams]);
+    router.push('/investments/transaction-history');
+  }, []);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -54,20 +48,6 @@ export default function InvestmentsPage() {
                   {tab}
                 </button>
               ))}
-            </div>
-
-            {/* Content will be handled by the sub-pages */}
-            <div className="min-h-[400px] flex items-center justify-center text-gray-500">
-              {activeTab === "거래내역" && (
-                <div className="text-center">
-                  <p>거래내역 페이지로 이동 중...</p>
-                </div>
-              )}
-              {activeTab === "미체결" && (
-                <div className="text-center">
-                  <p>미체결 주문 페이지로 이동 중...</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
