@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 type LoginFormProps = {
   onSwitch?: () => void;
@@ -9,26 +11,25 @@ type LoginFormProps = {
 export default function LoginForm({ onSwitch }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
-      const res = await fetch('http://localhost:8080/api/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error);
+      const result = await login(email, password);
+      if (result.success) {
+        router.push('/'); // 메인 페이지로 리다이렉트
+      } else {
+        alert('로그인 실패: ' + result.error);
       }
-
-      const user = await res.json();
-      alert(`${user.nickname}님 환영합니다!`);
-      // TODO: 로그인 상태 저장, 리다이렉트 등
     } catch (err: any) {
       alert('로그인 실패: ' + err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -41,6 +42,7 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        disabled={isLoading}
         className="p-2 border rounded w-96"
       />
       <input
@@ -49,13 +51,15 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        disabled={isLoading}
         className="p-2 border rounded w-96"
       />
       <button
         type="submit"
-        className="bg-blue-900 text-white py-2 rounded hover:bg-blue-700 transition"
+        disabled={isLoading}
+        className="bg-blue-900 text-white py-2 rounded hover:bg-blue-700 transition disabled:opacity-50"
       >
-        로그인
+        {isLoading ? '로그인 중...' : '로그인'}
       </button>
       {onSwitch && (
         <p

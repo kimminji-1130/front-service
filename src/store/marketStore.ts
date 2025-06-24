@@ -244,69 +244,75 @@ export const useMarketStore = create<MarketState>((set, get) => ({
           if (data.type === 'ticker') {
             const marketCode = data.code;
             
-            set(state => {
-              // 기존 데이터와 동일한지 확인하여 불필요한 업데이트 방지
-              const existingTicker = state.tickers[marketCode];
-              if (existingTicker && 
-                  existingTicker.trade_price === data.trade_price &&
-                  existingTicker.signed_change_rate === data.signed_change_rate) {
-                return state; // 변경사항이 없으면 상태 업데이트하지 않음
-              }
+            // 선택된 마켓의 데이터만 업데이트
+            if (marketCode === get().selectedMarket) {
+              set(state => {
+                const existingTicker = state.tickers[marketCode];
+                if (existingTicker && 
+                    existingTicker.trade_price === data.trade_price &&
+                    existingTicker.signed_change_rate === data.signed_change_rate &&
+                    existingTicker.timestamp === data.timestamp) {
+                  return state; // 변경사항이 없으면 상태 업데이트하지 않음
+                }
 
-              const newTickers = {
-                ...state.tickers,
-                [marketCode]: data
-              };
-              
-              // currentPrice는 selectedMarket과 일치할 때만 업데이트
-              let newCurrentPrice = state.currentPrice;
-              if (marketCode === state.selectedMarket) {
-                newCurrentPrice = data.trade_price;
-              }
-              
-              return {
-                tickers: newTickers,
-                currentPrice: newCurrentPrice
-              };
-            });
+                const newTickers = {
+                  ...state.tickers,
+                  [marketCode]: data
+                };
+                
+                return {
+                  tickers: newTickers,
+                  currentPrice: data.trade_price
+                };
+              });
+            }
           } else if (data.type === 'orderbook') {
-            set(state => {
-              // 기존 데이터와 동일한지 확인
-              const existingOrderbook = state.orderbooks[data.code];
-              if (existingOrderbook && 
-                  existingOrderbook.timestamp === data.timestamp) {
-                return state; // 변경사항이 없으면 상태 업데이트하지 않음
-              }
+            const marketCode = data.code;
+            
+            // 선택된 마켓의 데이터만 업데이트
+            if (marketCode === get().selectedMarket) {
+              set(state => {
+                const existingOrderbook = state.orderbooks[marketCode];
+                if (existingOrderbook && 
+                    existingOrderbook.timestamp === data.timestamp &&
+                    JSON.stringify(existingOrderbook.orderbook_units) === JSON.stringify(data.orderbook_units)) {
+                  return state; // 변경사항이 없으면 상태 업데이트하지 않음
+                }
 
-              return {
-                orderbooks: {
-                  ...state.orderbooks,
-                  [data.code]: data
-                }
-              };
-            });
+                return {
+                  orderbooks: {
+                    ...state.orderbooks,
+                    [marketCode]: data
+                  }
+                };
+              });
+            }
           } else if (data.type === 'trade') {
-            // 실시간 체결 데이터 누적 저장 (오늘 날짜만 유지, 중복 trade_timestamp 방지)
-            set(state => {
-              const today = new Date().toDateString();
-              const prev = (state.tradeData[data.code] || []).filter(
-                t => new Date(t.trade_timestamp).toDateString() === today
-              );
-              const alreadyExists = prev.some(t => t.trade_timestamp === data.trade_timestamp);
-              
-              // 중복된 데이터가 있으면 상태 업데이트하지 않음
-              if (alreadyExists) {
-                return state;
-              }
-              
-              const updated = [data, ...prev].slice(0, 100); // 최대 100개만 유지
-              return {
-                tradeData: {
-                  ...state.tradeData,
-                  [data.code]: updated
+            const marketCode = data.code;
+            
+            // 선택된 마켓의 데이터만 업데이트
+            if (marketCode === get().selectedMarket) {
+              set(state => {
+                const today = new Date().toDateString();
+                const prev = (state.tradeData[marketCode] || []).filter(
+                  t => new Date(t.trade_timestamp).toDateString() === today
+                );
+                const alreadyExists = prev.some(t => t.trade_timestamp === data.trade_timestamp);
+                
+                // 중복된 데이터가 있으면 상태 업데이트하지 않음
+                if (alreadyExists) {
+                  return state;
                 }
-              };
-            });
+                
+                const updated = [data, ...prev].slice(0, 100); // 최대 100개만 유지
+                return {
+                  tradeData: {
+                    ...state.tradeData,
+                    [marketCode]: updated
+                  }
+                };
+              });
+            }
           }
         } catch (error) {
           console.error('Error processing message:', error);
@@ -375,14 +381,12 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   },
 
   disconnect: () => {
-    // 페이지 전환을 막지 않도록 연결 해제 로직을 비동기 처리합니다.
-    setTimeout(() => {
-      const { ws } = get();
-      if (ws) {
-        ws.close(1000, 'User initiated disconnect');
-        set({ ws: null, subscribedMarkets: new Set() });
-      }
-    }, 0);
+    const { ws } = get();
+    if (ws) {
+      console.log('Disconnecting WebSocket...');
+      ws.close(1000, 'User initiated disconnect');
+      set({ ws: null, subscribedMarkets: new Set() });
+    }
   },
 
   setSelectedMarket: async (market: string) => {

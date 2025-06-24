@@ -2,9 +2,12 @@
 
 import { useMarketStore } from "@/store/marketStore"
 import { MarketInfo } from "@/types/market"
+import { useRouter, usePathname } from "next/navigation"
 
 export default function MarketList() {
   const { markets, tickers, error, isLoading, selectedMarket, setSelectedMarket } = useMarketStore();
+  const router = useRouter();
+  const pathname = usePathname();
 
   // 현재가 표시 및 전일 대비 거래량(24H)용 함수
   const currentAndChangePriceFormat = (beforeNumber: number) => {
@@ -43,6 +46,11 @@ export default function MarketList() {
   // 마켓 선택 핸들러
   const handleMarketSelect = async (market: string) => {
     await setSelectedMarket(market);
+    
+    // 현재 페이지가 exchange 페이지가 아닌 경우 exchange 페이지로 리디렉션
+    if (pathname !== '/exchange') {
+      router.push(`/exchange?market=${market}`);
+    }
   };
 
   if (isLoading && markets.length === 0) {
