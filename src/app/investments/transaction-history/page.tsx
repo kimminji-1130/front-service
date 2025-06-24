@@ -141,7 +141,7 @@ export default function TransactionHistoryPage() {
                     <tbody>
                       <tr>
                         <td colSpan={10} className="px-4 py-16 text-center text-gray-500">
-                          결과가 없습니다.
+                          거래내역이 없습니다.
                         </td>
                       </tr>
                     </tbody>

@@ -97,9 +97,6 @@ export default function WaitOrders() {
                       <tr>
                         <td colSpan={7} className="px-4 py-16 text-center">
                           <div className="flex flex-col items-center space-y-2">
-                            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                              <div className="w-8 h-8 bg-gray-300 rounded"></div>
-                            </div>
                             <span className="text-gray-500">미체결 주문이 없습니다.</span>
                           </div>
                         </td>
