@@ -40,7 +40,7 @@ export default function Header() {
             <Link href="/" className="hover:text-gray-300">
               투자내역
             </Link>
-            <Link href="/" className="hover:text-gray-300">
+            <Link href="/holdings" className="hover:text-gray-300">
               보유자산
             </Link>
           </div>
