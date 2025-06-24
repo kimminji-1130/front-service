@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
+import Link from 'next/link';
 
 export default function MyPage() {
     const [preview, setPreview] = useState<string | null>(null);
@@ -91,7 +92,9 @@ export default function MyPage() {
                         프로필 사진 업로드
                     </button>
                     <button className="text-sm text-blue-700 underline mt-3">
+                        <Link href="/password">
                         비밀번호변경
+                        </Link>
                     </button>
                 </div>
 
