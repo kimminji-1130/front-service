@@ -1,11 +1,13 @@
 "use client"
 
-import Link from "next/link"
 import { useMarketStore } from "@/store/marketStore"
 import { MarketInfo } from "@/types/market"
+import { useRouter, usePathname } from "next/navigation"
 
 export default function MarketList() {
-  const { markets, tickers, error, isLoading, selectedMarket } = useMarketStore();
+  const { markets, tickers, error, isLoading, selectedMarket, setSelectedMarket } = useMarketStore();
+  const router = useRouter();
+  const pathname = usePathname();
 
   // 현재가 표시 및 전일 대비 거래량(24H)용 함수
   const currentAndChangePriceFormat = (beforeNumber: number) => {
@@ -41,6 +43,16 @@ export default function MarketList() {
     return isPriceUp ? 'text-red-600' : 'text-blue-600';
   };
 
+  // 마켓 선택 핸들러
+  const handleMarketSelect = async (market: string) => {
+    await setSelectedMarket(market);
+    
+    // 현재 페이지가 exchange 페이지가 아닌 경우 exchange 페이지로 리디렉션
+    if (pathname !== '/exchange') {
+      router.push(`/exchange?market=${market}`);
+    }
+  };
+
   if (isLoading && markets.length === 0) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -66,34 +78,36 @@ export default function MarketList() {
   return (
     <div className="">
       {markets.map((market) => (
-        <Link href={`/exchange?market=${market.market}`} key={market.market} scroll={false}>
-          <div className={`flex items-center py-3 border-b text-sm cursor-pointer hover:bg-gray-100 ${selectedMarket === market.market ? 'bg-blue-50' : ''}`}>
-            <div className="flex-1 flex items-center px-2">
-              <div className="flex flex-col">
-                {/* 코인 이름 및 티커 표시 */}
-                <div className="font-medium flex items-center">{market.korean_name}</div>
-                <div className="text-gray-500 text-xs">{market.market}</div>
-              </div>
-            </div>
-            {/* 현재가 표시 */}
-            <div className="flex-1 text-right px-2">
-              <div className={`${changeRatePriceColor(market)}`}>{currentAndChangePriceFormat(tickers[market.market]?.trade_price)}</div>
-            </div>  
-            {/* 전일대비 거래량(24H) */}
-            <div className="flex-1 text-right px-2">
-              <div className="flex flex-col">
-                <div className={`${changeRatePriceColor(market)}`}>{changeRateFormat(tickers[market.market]?.signed_change_rate)}%</div>
-                <div className={`${changeRatePriceColor(market)}`}>{currentAndChangePriceFormat(tickers[market.market]?.signed_change_price)}</div>
-              </div>
-            </div>
-            {/* 거래 대금(24H) */}
-            <div className="flex-1 text-right px-2">
-              <div>{price24hFormat(tickers[market.market]?.acc_trade_price_24h)}
-                <span className="text-xs text-gray-500">백만</span>
-              </div>
+        <div 
+          key={market.market} 
+          onClick={() => handleMarketSelect(market.market)}
+          className={`flex items-center py-3 border-b text-sm cursor-pointer hover:bg-gray-100 ${selectedMarket === market.market ? 'bg-blue-50' : ''}`}
+        >
+          <div className="flex-1 flex items-center px-2">
+            <div className="flex flex-col">
+              {/* 코인 이름 및 티커 표시 */}
+              <div className="font-medium flex items-center">{market.korean_name}</div>
+              <div className="text-gray-500 text-xs">{market.market}</div>
             </div>
           </div>
-        </Link>
+          {/* 현재가 표시 */}
+          <div className="flex-1 text-right px-2">
+            <div className={`${changeRatePriceColor(market)}`}>{currentAndChangePriceFormat(tickers[market.market]?.trade_price)}</div>
+          </div>  
+          {/* 전일대비 거래량(24H) */}
+          <div className="flex-1 text-right px-2">
+            <div className="flex flex-col">
+              <div className={`${changeRatePriceColor(market)}`}>{changeRateFormat(tickers[market.market]?.signed_change_rate)}%</div>
+              <div className={`${changeRatePriceColor(market)}`}>{currentAndChangePriceFormat(tickers[market.market]?.signed_change_price)}</div>
+            </div>
+          </div>
+          {/* 거래 대금(24H) */}
+          <div className="flex-1 text-right px-2">
+            <div>{price24hFormat(tickers[market.market]?.acc_trade_price_24h)}
+              <span className="text-xs text-gray-500">백만</span>
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   )

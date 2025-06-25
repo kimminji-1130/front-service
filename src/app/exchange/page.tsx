@@ -2,6 +2,7 @@
 
 import { Suspense } from "react"
 import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { useMarketStore } from "@/store/marketStore"
 import SearchBar from "@/components/SearchBar"
 import MarketTabs from "@/components/MarketTabs"
@@ -14,7 +15,8 @@ import CandleChart from "@/components/CandleChart"
 
 // useSearchParams를 사용하는 컴포넌트들을 별도로 분리
 function ExchangeContent() {
-  const { setSelectedMarket } = useMarketStore();
+  const searchParams = useSearchParams();
+  const { connect, ws, isConnecting, markets, selectedMarket, setSelectedMarket, restoreSelectedMarket } = useMarketStore();
 
   useEffect(() => {
     const { connect, ws, isConnecting } = useMarketStore.getState();
@@ -27,6 +29,23 @@ function ExchangeContent() {
       disconnect();
     };
   }, []);
+
+  // 클라이언트 사이드에서 저장된 마켓 복원 (hydration 후 실행)
+  useEffect(() => {
+    restoreSelectedMarket();
+  }, [restoreSelectedMarket]);
+
+  // URL 파라미터에서 마켓 정보 읽기 및 초기 설정
+  useEffect(() => {
+    const marketFromUrl = searchParams.get('market');
+    if (marketFromUrl && markets.length > 0) {
+      // 유효한 마켓인지 확인
+      const isValidMarket = markets.some(m => m.market === marketFromUrl);
+      if (isValidMarket && selectedMarket !== marketFromUrl) {
+        setSelectedMarket(marketFromUrl);
+      }
+    }
+  }, [searchParams, markets, selectedMarket, setSelectedMarket]);
 
   return (
     <main className="grid grid-cols-3 gap-2 min-h-screen p-4 md:p-8 bg-gray-50">

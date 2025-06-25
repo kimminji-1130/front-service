@@ -3,9 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Header() {
   const pathname = usePathname();
+  const { user, isAuthenticated } = useAuthStore();
+  const { logout } = useAuth();
   
   // 로그인 상태 확인용 state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -37,19 +41,24 @@ export default function Header() {
             <Link href="/exchange" className="hover:text-gray-300">
               모의거래소
             </Link>
-            <Link href="/chart" className="hover:text-gray-300">
-              차트
+            <Link href="/investments" className="hover:text-gray-300">
+              투자내역
+            </Link>
+            <Link href="/holdings" className="hover:text-gray-300">
+              보유자산
             </Link>
           </div>
 
           {/* 오른쪽 */}
           <div className="flex items-center space-x-6">
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <>
-                {/* 로그인 상태일 때 */}
+                <span className="text-sm text-gray-700">
+                  {user?.nickname}님 환영합니다
+                </span>
                 <button
-                  onClick={handleLogout}
-                  className="hover:text-gray-300 cursor-pointer"
+                  onClick={logout}
+                  className="text-sm text-red-600 hover:text-red-800"
                 >
                   로그아웃
                 </button>
