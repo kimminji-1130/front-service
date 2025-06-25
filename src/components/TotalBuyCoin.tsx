@@ -6,9 +6,9 @@ import { useAssetStore } from "@/store/assetStore"
 // 보유 자산
 export default function TotalBuyCoin() {
 
-    const {assets, holdings, getTotalValuation} = useAssetStore();
-   
-    const result = getTotalValuation(assets, holdings);
+    const {assets, getTotalValuation} = useAssetStore();
+    // 0: 코인 구매가의 합, 1: 총평가, 2: 총 보유자산, 3: 평가손익, 4: 총 수익률
+    const result = getTotalValuation(assets);
 
     return (
         <div className="items-center justify-between space-y-3 p-6">
