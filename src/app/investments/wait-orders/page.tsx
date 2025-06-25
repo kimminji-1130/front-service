@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import { ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 import MarketSortBar from "@/components/MarketSortBar";
 import MarketTabs from "@/components/MarketTabs";
@@ -50,7 +49,6 @@ export default function WaitOrders() {
               <Select value={orderType} onValueChange={setOrderType}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
-                  <ChevronDown className="h-4 w-4" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="전체주문">전체주문</SelectItem>
