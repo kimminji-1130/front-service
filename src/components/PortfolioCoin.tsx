@@ -1,107 +1,123 @@
 
-import React, { RefObject, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
-interface Asset {
-    market_code: string;
-    market_name: string;
-    total_coin_price: number;
-    total_coin_cnt: number; // 매수 수량
+interface Data {
+    label: string;
+    data: number;
 }
 
 interface PortfolioCoinProps {
     uid: number;
-    datas: Asset[];
+    datas: Data[];
     canvasRef: React.RefObject<HTMLCanvasElement>;
 }
 
 // 보유자산 차트
 export default function PortfolioCoin({uid, datas, canvasRef}: PortfolioCoinProps) {
 
+    const chartRef = useRef<Chart | null>(null);
+
     useEffect(() => {
-
-        const ctx = canvasRef.current?.getContext("2d");
-        let percentages: number[] = [];
-
-        const coinName = datas.map((data) => data.market_name);
-        const coinData = datas.map((data) => data.total_coin_price);
-        
-        // 캔버스가 존재하지 않으면 종료
+        if(!canvasRef.current) return;
+        const ctx = canvasRef.current.getContext("2d");
         if (!ctx) return;
+        if (!datas  || datas.length === 0) return;
 
-        if (!datas || datas.length === 0) return;
+        const threshold = 0.3; // 5% 미만의 데이터는 기타 처리
+        const mainCoins = datas.filter((data) => data.data > threshold);
+        const etcCoins = datas.filter((data) => data.data <= threshold);
 
-        // 차트가 존재한다면 삭제
-        const existChart = Chart.getChart(ctx)
-        if(existChart) {
-            existChart.destroy();
+        let etc = 0;
+        if(etcCoins.length > 0) {
+            etc = etcCoins.reduce((sum, data) => sum + data.data, 0);
         }
+        
+        const chartData = etc > 0 
+        ? [...mainCoins, { label: "기타", data: etc }]
+        : mainCoins;
+        
+        const coinName = chartData.map((data) => data.label);
+        const coinData = chartData.map((data) => data.data); 
 
-
-        const chart = new Chart(ctx, {
-            type: "doughnut",
-            data: {
-                labels: coinName,
-                datasets: [{
-                    data: coinData,
-                    // 내부 데이터 표시
-                    datalabels: {
-                        align: 'center',
-                        color: 'black',
-                        font: {
-                            weight: 'bold',
-                            size: 30,
-                        },
-
-                        formatter: (value, context) => {
-                            const total = (context.chart.data.datasets[0].data as number[])
-                                .filter((v): v is number => typeof v === 'number')
-                                .reduce((a, b) => a + b, 0);
-                            const percentage = (value/total) * 100;
-                            
-                            percentages[context.dataIndex] = percentage;
-
-                            return percentage.toFixed(1) + '%';
+        if(!chartRef.current) {
+            chartRef.current = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: coinName,
+                    datasets: [{
+                        data: coinData,
+                        backgroundColor: [
+                            "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
+                            "#FF9F40", "#C9CBCF", "#F67019", "#F53794", "#537BC4",
+                            "#ACC236", "#166A8F", "#00A950", "#58595B", "#8549BA"
+                        ],
+                        // 내부 데이터 표시
+                        datalabels: {
+                            align: 'center',
+                            color: 'white',
+                            font: {
+                                weight: 'bold',
+                                size: 10,
+                            },
+                            formatter: (value, context) => {
+                                if (value < threshold) return null;
+                                return `${value.toFixed(3)} %`;
+                            }
                         }
-                    }
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'right',
-                        labels: {
-                            generateLabels: (chart) => {
-                                const datasets = chart.data.datasets;
-                                const backgroundColors = Array.isArray(datasets[0].backgroundColor)
-                                    ? datasets[0].backgroundColor
-                                    : [];
+                    }]
+                },
+                options: {
+                    animation: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                generateLabels: (chart) => {
+                                    const datasets = chart.data.datasets;
+                                    const backgroundColors = Array.isArray(datasets[0].backgroundColor)
+                                        ? datasets[0].backgroundColor
+                                        : [];
 
-                                return datasets[0].data.map((value, idx) => {
-                                    const label = chart.data.labels?.[idx] ?? '';
-                                    const percentage = percentages[idx]?.toFixed?.(1) ?? '0.0';
-                                    const fillStyle =
-                                        typeof backgroundColors[idx] === 'string'
+                                    return datasets[0].data.map((value, idx) => {
+                                        const label = chart.data.labels?.[idx] ?? '';
+                                        const percentage = chart.data.datasets[0].data[idx];
+                                        const fillStyle = typeof backgroundColors[idx] === 'string' 
                                             ? backgroundColors[idx]
                                             : undefined;
-
-                                    return {
-                                        text: `${label}: ${percentage} %`,
-                                        fillStyle: fillStyle,
-                                        index: idx,
-                                        strokeStyle: fillStyle
-                                    };
-                                });
+                                        
+                                        return {
+                                            text: typeof percentage === "number"
+                                                ? `${label}: ${percentage.toFixed(3)} %`
+                                                : `${label}: ${percentage} %`,
+                                            fillStyle: fillStyle,
+                                            index: idx,
+                                            strokeStyle: fillStyle
+                                        }
+                                    })
+                                }
                             }
                         }
                     }
-                }
-            },
-            plugins: [ChartDataLabels],
-        });
-    }), [datas]
+                },
+                plugins: [ChartDataLabels],
+            });
+        } else {
+            chartRef.current.data.labels = coinName;
+            chartRef.current.data.datasets[0].data = coinData;
+            chartRef.current.update();
+        }
+
+    }, [datas, canvasRef.current]);
+
+    useEffect(() => {
+        return () => {
+            chartRef.current?.destroy();
+            chartRef.current = null;
+        }
+    }, [canvasRef.current]);    
     return null;
 }
 
