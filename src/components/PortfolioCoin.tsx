@@ -36,7 +36,7 @@ export default function PortfolioCoin({uid, datas, canvasRef}: PortfolioCoinProp
         const coinName = chartData.map((d) => d.label);
         const coinData = chartData.map((d) => d.data);
 
-        const fontSize = Math.max(Math.round(window.innerWidth / 100), 8);
+        const fontSize = Math.max(Math.round(window.innerWidth / 130), 8);
 
         const createChart = () => {
             return new Chart(ctx, {
