@@ -51,7 +51,7 @@ export default function ProfitLoss() {
             </div>
         </div>
 
-        <div className="flex flex-col space-y-4 w-full max-w-6xl p-4 bg-white">
+        <div className="flex flex-col space-y-4 w-full max-w-6xl pl-4 bg-white">
 
           <div>
             <ProfitLossNum></ProfitLossNum>
