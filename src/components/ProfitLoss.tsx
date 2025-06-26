@@ -25,7 +25,7 @@ export default function ProfitLoss() {
   const handleTabChange = (tab: string) => {
     if (tab === "보유자산") {
       router.push('/portfolio/holdings');
-    } else {
+    } else { 
       router.push('/portfolio/profit-loss');
     }
   }
@@ -37,7 +37,7 @@ export default function ProfitLoss() {
 
       <div className="col-span-2 border rounded-md overflow-hidden bg-white">
 
-        <div className="w-full max-w-6xl mx-auto pt-4 bg-white">
+        <div className="w-full max-w-6xl mx-auto pt-4 bg-white px-4 p-4">
           <div className="flex border-b border-gray-200 mb-6">
             {tabs.map((tab) => (
                 <button
