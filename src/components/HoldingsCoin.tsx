@@ -3,6 +3,7 @@ import { useRef } from "react";
 import TotalBuyCoin from "./TotalBuyCoin";
 
 import { useAssetStore } from "@/store/assetStore";
+import { useMarketStore } from "@/store/marketStore";
 
 import PortfolioCoin from "./PortfolioCoin";
 import HoldingCointList from "./HoldingCoinList";
@@ -10,6 +11,7 @@ import HoldingCointList from "./HoldingCoinList";
 export default function HoldingsCoin() {
 
     const { assets , getDoughnutData } = useAssetStore();
+    const { tickers } = useMarketStore();
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     return (
@@ -25,7 +27,7 @@ export default function HoldingsCoin() {
             <canvas ref={canvasRef} id="total-doughnut" width={400} height={400}></canvas>
             <PortfolioCoin
                 uid={1}
-                datas={getDoughnutData(assets)}
+                datas={getDoughnutData(assets, tickers)}
                 canvasRef={canvasRef}
             ></PortfolioCoin>
 
