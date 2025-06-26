@@ -7,39 +7,37 @@ import { useState } from "react";
 export default function AssetsPage() {
 
     const [clickTab, setClickTap] = useState("balance");
-    
+
     const tab = [
-        {id: "balance", label: "보유자산"},
-        {id: "income", label: "투자손익"},
+        { id: "balance", label: "보유자산" },
+        { id: "income", label: "투자손익" },
     ]
     return (
         <main>
-            
+
             <div className="flex border-b mt-8">
                 {tab.map((t) => (
                     <button
-                        key={t.id}
-                        className={`flex-1 py-3 font-medium ${
-                            clickTab === t.id
-                              ? t.id == "income"
-                              ? "text-black border-b-2 border-black"
-                              : "text-black border-b-2 border-black"
-                            : "text-gray-300"
-                        }`}
-                        onClick={() => setClickTap(t.id)}
-                    >
-                        {t.label}
-                    </button>
+                    key={t.id}
+                    className={`flex-1 py-3 font-bold border-b-2 transition-colors duration-200
+                      ${clickTab === t.id 
+                        ? "text-blue-500 border-blue-500 font-bold" 
+                        : "text-gray-300 border-transparent hover:text-black hover:font-semibold"
+                      }`}
+                    onClick={() => setClickTap(t.id)}
+                  >
+                    {t.label}
+                  </button>
                 ))}
             </div>
 
             <div>
-                {clickTab === 'balance' &&(
+                {clickTab === 'balance' && (
                     <HoldingsCoin></HoldingsCoin>
-                    
+
                 )}
 
-                {clickTab === 'income' &&(
+                {clickTab === 'income' && (
                     <div></div>
                 )}
 
