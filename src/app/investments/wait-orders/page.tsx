@@ -13,6 +13,9 @@ import MarketList from "@/components/MarketList";
 export default function WaitOrders() {
   const router = useRouter();
   const [orderType, setOrderType] = useState("전체주문")
+  const [activeTab, setActiveTab] = useState("미체결");
+
+  const tabs = ["거래내역", "미체결"];
 
   const handleTabChange = (tab: string) => {
     if (tab === "거래내역") {
@@ -30,18 +33,19 @@ export default function WaitOrders() {
           <div className="w-full max-w-6xl mx-auto p-4 bg-white">
             {/* Tab Navigation */}
             <div className="flex border-b border-gray-200 mb-6">
-              <button
-                onClick={() => handleTabChange("거래내역")}
-                className="px-6 py-3 text-sm font-medium border-b-2 text-gray-500 border-transparent hover:text-gray-700"
-              >
-                거래내역
-              </button>
-              <button
-                onClick={() => handleTabChange("미체결")}
-                className="px-6 py-3 text-sm font-medium border-b-2 text-blue-600 border-blue-600"
-              >
-                미체결
-              </button>
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => handleTabChange(tab)}
+                  className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab
+                      ? "text-blue-600 border-blue-600"
+                      : "text-gray-500 border-transparent hover:text-gray-700"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
 
             {/* Order Type and Cancel All */}

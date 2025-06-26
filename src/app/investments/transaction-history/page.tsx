@@ -16,6 +16,9 @@ export default function TransactionHistoryPage() {
   const [transactionType, setTransactionType] = useState("전체")
   const periods = ["1주일", "1개월", "3개월", "6개월", "직접입력"]
   const transactionTypes = ["전체", "매수", "매도"]
+  const [activeTab, setActiveTab] = useState("거래내역");
+
+  const tabs = ["거래내역", "미체결"];
 
   const handleTabChange = (tab: string) => {
     if (tab === "미체결") {
@@ -33,18 +36,19 @@ export default function TransactionHistoryPage() {
           <div className="w-full max-w-6xl mx-auto p-4 bg-white">
             {/* Tab Navigation */}
             <div className="flex border-b border-gray-200 mb-6">
-              <button
-                onClick={() => handleTabChange("거래내역")}
-                className="px-6 py-3 text-sm font-medium border-b-2 text-blue-600 border-blue-600"
-              >
-                거래내역
-              </button>
-              <button
-                onClick={() => handleTabChange("미체결")}
-                className="px-6 py-3 text-sm font-medium border-b-2 text-gray-500 border-transparent hover:text-gray-700"
-              >
-                미체결
-              </button>
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => handleTabChange(tab)}
+                  className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab
+                      ? "text-blue-600 border-blue-600"
+                      : "text-gray-500 border-transparent hover:text-gray-700"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
 
             {/* Date and Filter Controls */}

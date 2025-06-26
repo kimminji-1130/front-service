@@ -12,21 +12,23 @@ import SearchBar from "@/components/SearchBar";
 import MarketList from "@/components/MarketList";
 import { useRouter } from "next/navigation";
 
-export default function Investment() {
+export default function ProfitLoss() {
   
   const graphTab = ['누적수익률', '손익'];
   const [selectedGraph, setSelectedGraph] = useState('누적수익률');
+  const [activeTab, setActiveTab] = useState("투자손익");
+
+  const tabs = ["보유자산", "투자손익"];
 
   const router = useRouter();
 
-  const tabChange = (tab: string) => {
+  const handleTabChange = (tab: string) => {
     if (tab === "보유자산") {
       router.push('/portfolio/holdings');
     } else {
       router.push('/portfolio/profit-loss');
     }
   }
-  
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -36,20 +38,21 @@ export default function Investment() {
       <div className="col-span-2 border rounded-md overflow-hidden bg-white">
 
         <div className="w-full max-w-6xl mx-auto pt-4 bg-white">
-          <div className="flex border-b border-gray-200">
-            <button
-              onClick={() => tabChange("보유자산")}
-              className="px-6 py-3 text-sm font-medium border-b-2 text-gray-500 border-transparent hover:text-gray-700"
-            >
-              보유자산
-            </button>
-            <button
-              onClick={() => tabChange("투자손익")}
-              className="px-6 py-3 text-sm font-medium border-b-2 text-blue-600 border-blue-600"
-            >
-              투자손익
-            </button>
-          </div>
+          <div className="flex border-b border-gray-200 mb-6">
+            {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => handleTabChange(tab)}
+                  className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab
+                      ? "text-blue-600 border-blue-600"
+                      : "text-gray-500 border-transparent hover:text-gray-700"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
         </div>
 
         <div className="flex flex-col space-y-4 w-full max-w-6xl p-4 bg-white">
