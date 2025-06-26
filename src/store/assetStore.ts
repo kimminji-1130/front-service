@@ -1,9 +1,5 @@
 import { create } from 'zustand';
 
-import { useMarketStore } from './marketStore';
-
-
-
 interface Asset {
     market_code: string;
     market_name: string;
@@ -15,9 +11,9 @@ interface AssetState {
   assets: Asset[];
   holdings: number;
 
-  getCurrentPrice: (market: string) => number;
-  getTotalValuation: (assets: Asset[]) => number[];
-  getDoughnutData: (assets: Asset[]) => { label: string; data: number; }[];
+  getCurrentPrice: (market: string, tickers: Record<string, any>) => number;
+  getTotalValuation: (assets: Asset[], tickers: Record<string, any>) => number[];
+  getDoughnutData: (assets: Asset[], tickers: Record<string, any>) => { label: string; data: number; }[];
 }
 
 export const useAssetStore = create<AssetState>((set, get) => ({
@@ -46,8 +42,7 @@ export const useAssetStore = create<AssetState>((set, get) => ({
     holdings: 0,
 
     // 현재가 가져오기
-    getCurrentPrice: (market: string) => {
-        const { tickers } = useMarketStore();
+    getCurrentPrice: (market: string, tickers: Record<string, any>) => {
         const price = tickers[market]?.trade_price;
 
         if (price) {
@@ -56,14 +51,14 @@ export const useAssetStore = create<AssetState>((set, get) => ({
         return 0;
     },
 
-    getTotalValuation: (assets: Asset[]) => {
+    getTotalValuation: (assets: Asset[], tickers: Record<string, any>) => {
         const {getCurrentPrice, holdings} = get();
 
         // 총 매수 코인 가격
         const total_price = assets.reduce((sum, asset) => sum + asset.total_coin_price, 0);
 
         // 현재가 x 보유 코인 개수
-        let valuations = assets.map((asset) => getCurrentPrice(asset.market_code) * asset.total_coin_cnt);
+        let valuations = assets.map((asset) => getCurrentPrice(asset.market_code, tickers) * asset.total_coin_cnt);
         let total_valuations = valuations.reduce((sum, price) => sum + price, 0); // 총평가
 
         let total_holding = total_valuations + holdings; // 총 보유자산
@@ -77,13 +72,13 @@ export const useAssetStore = create<AssetState>((set, get) => ({
         return result;   
     },
 
-    getDoughnutData: (assets: Asset[]) => {
+    getDoughnutData: (assets: Asset[], tickers: Record<string, any>) => {
         const { getCurrentPrice, getTotalValuation } = get();
-        const result = getTotalValuation(assets);
+        const result = getTotalValuation(assets, tickers);
         
         const data = assets.map((asset) => {
             // asset.market_code로 현재가를 가져와서 계산
-            const current = getCurrentPrice(asset.market_code);
+            const current = getCurrentPrice(asset.market_code, tickers);
             return {
                 label: asset.market_name,
                 data: Number((current * asset.total_coin_cnt) / result[1]) * 100,

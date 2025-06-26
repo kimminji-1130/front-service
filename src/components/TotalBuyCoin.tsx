@@ -1,14 +1,16 @@
 'use client'
 
 import { useAssetStore } from "@/store/assetStore"
+import { useMarketStore } from "@/store/marketStore"
 
 
 // 보유 자산
 export default function TotalBuyCoin() {
 
     const {assets, getTotalValuation} = useAssetStore();
+    const { tickers } = useMarketStore();
     // 0: 코인 구매가의 합, 1: 총평가, 2: 총 보유자산, 3: 평가손익, 4: 총 수익률
-    const result = getTotalValuation(assets);
+    const result = getTotalValuation(assets, tickers);
 
     return (
         <div className="items-center justify-between space-y-3 p-6">
