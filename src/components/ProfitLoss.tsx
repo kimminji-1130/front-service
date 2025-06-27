@@ -29,7 +29,7 @@ export default function ProfitLoss() {
   }
   
   return (
-    <main className="grid grid-cols-3 gap-2 min-h-scren p-4 md:p-8 bg-gray-50">
+    <main className="grid grid-cols-3 gap-2 min-h-screen p-4 md:p-8 bg-gray-50">
 
       <div className="col-span-2 border rounded-md overflow-hidden bg-white">
 
@@ -51,14 +51,14 @@ export default function ProfitLoss() {
             </div>
         </div>
 
-        <div className="flex flex-col space-y-4 w-full max-w-6xl pl-4 bg-white">
+        <div className="flex flex-col space-y-4 w-full max-w-6xl mx-auto px-4 bg-white">
 
           <div>
             <ProfitLossNum></ProfitLossNum>
           </div>
 
 
-          <div className="flex flex-col space-y-4 ml-4">
+          <div className="flex flex-col space-y-4">
 
             <span className="text-gray-500 font-medium">투자손익 그래프</span>
 
