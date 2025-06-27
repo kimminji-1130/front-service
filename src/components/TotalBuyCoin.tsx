@@ -12,8 +12,9 @@ export default function TotalBuyCoin() {
   const result = getTotalValuation(assets, tickers);
 
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-2 gap-8  p-8 rounded-lg bg-blue-50 border">
+    <div className="overflow-x-auto p-6">
+  <div className="grid grid-cols-2 gap-8 p-8 rounded-lg bg-blue-50 border max-w-screen-lg mx-auto">
+
 
         {/* 왼쪽 영역 */}
         <div className="space-y-6">

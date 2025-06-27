@@ -37,22 +37,21 @@ export default function Holdings() {
       {/* Left Section */}
       <div className="col-span-2 flex flex-col gap-2">
         <div className="border rounded-md bg-white px-4 p-4">
-        {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 mb-6">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => handleTabChange(tab)}
-              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === tab
-                  ? "text-blue-600 border-blue-600"
-                  : "text-gray-500 border-transparent hover:text-gray-700"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+          {/* Tab Navigation */}
+          <div className="flex border-b border-gray-200 mb-6">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => handleTabChange(tab)}
+                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
+                    ? "text-blue-600 border-blue-600"
+                    : "text-gray-500 border-transparent hover:text-gray-700"
+                  }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
 
           {/* Tab Content (보유자산 탭) */}
           {activeTab === "보유자산" && (
@@ -62,7 +61,7 @@ export default function Holdings() {
               <div className="mt-8">
                 <p className="text-xl font-semibold mb-4">보유 코인 포트폴리오</p>
 
-                <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div className="mt-4 flex flex-col md:flex-row md:flex-wrap gap-6">
                   {/* 도넛 차트 */}
                   <div className="w-full flex justify-center">
                     <div className="w-full md:w-2/3 max-w-full aspect-square relative">
@@ -75,7 +74,7 @@ export default function Holdings() {
                   </div>
 
                   {/* 차트 데이터 */}
-                  <div className="w-full md:w-1/2">
+                  <div className="w-full md:w-1/2 overflow-hidden">
                     <PortfolioCoin
                       uid={1}
                       datas={getDoughnutData(assets, tickers)}
