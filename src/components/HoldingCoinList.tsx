@@ -14,7 +14,7 @@ export default function HoldingCointList() {
 
   return (
     <div className="max-w-screen-xl mx-auto">
-      <Card className="border-none shadow-sm overflow-x-auto">
+      <Card className="border-none shadow-sm overflow-x-auto pt-0">
         <CardContent className="p-0">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b">
@@ -22,7 +22,7 @@ export default function HoldingCointList() {
                 {head.map((title) => (
                   <th
                     key={title}
-                    className="px-3 py-2 text-left font-medium text-gray-500 whitespace-nowrap"
+                    className="px-3 py-2 text-right font-medium text-gray-500 whitespace-nowrap"
                   >
                     {title}
                   </th>
@@ -45,13 +45,13 @@ export default function HoldingCointList() {
 
                   return (
                     <tr key={asset.market_code} className="border-b hover:bg-gray-50">
-                      <td className="px-3 py-2 text-gray-800 whitespace-nowrap">{asset.market_name}</td>
-                      <td className="px-3 py-2 text-gray-800 whitespace-nowrap">{asset.market_code}</td>
-                      <td className="px-3 py-2 text-right text-gray-800 whitespace-nowrap">{asset.total_coin_cnt.toLocaleString()}</td>
-                      <td className="px-3 py-2 text-right text-gray-800 whitespace-nowrap">{avgPrice.toLocaleString()} KRW</td>
-                      <td className="px-3 py-2 text-right text-gray-800 whitespace-nowrap">{currentPrice.toLocaleString()} KRW</td>
-                      <td className="px-3 py-2 text-right text-gray-800 font-medium whitespace-nowrap">{asset.total_coin_price.toLocaleString()} KRW</td>
-                      <td className="px-3 py-2 text-right text-gray-800 whitespace-nowrap">{profit} %</td>
+                      <td className="px-3 py-1 text-gray-800 whitespace-nowrap">{asset.market_name}</td>
+                      <td className="px-3 py-1 text-gray-800 whitespace-nowrap">{asset.market_code}</td>
+                      <td className="px-3 py-1 text-right text-gray-800 whitespace-nowrap">{asset.total_coin_cnt.toLocaleString()}</td>
+                      <td className="px-3 py-1 text-right text-gray-800 whitespace-nowrap">{avgPrice.toLocaleString()} KRW</td>
+                      <td className="px-3 py-1 text-right text-gray-800 whitespace-nowrap">{currentPrice.toLocaleString()} KRW</td>
+                      <td className="px-3 py-1 text-right text-gray-800 font-medium whitespace-nowrap">{asset.total_coin_price.toLocaleString()} KRW</td>
+                      <td className="px-3 py-1 text-right text-gray-800 whitespace-nowrap">{profit} %</td>
                     </tr>
                   );
                 })
