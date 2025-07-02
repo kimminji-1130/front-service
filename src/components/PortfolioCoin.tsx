@@ -6,7 +6,7 @@ interface Data {
     label: string;
     data: number;
 }
-
+ 
 interface PortfolioCoinProps {
     uid: number;
     datas: Data[];
