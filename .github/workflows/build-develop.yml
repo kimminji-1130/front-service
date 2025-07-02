@@ -5,9 +5,6 @@ on:
     branches: [ develop ]
   pull_request:
     branches: [ develop ]
-
-permissions:
-  id-token: write
   
 jobs:
   build:
@@ -33,7 +30,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: user/amazon-ecr-login@v1
 
       - name: Get image tag (version)
         id: image
