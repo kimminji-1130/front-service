@@ -71,7 +71,7 @@ export default function BankruptModal({
             <h3 className="text-lg font-semibold mb-4">파산 신청</h3>
             <div className="mb-6">
               <p className="text-gray-600 mb-4">정말로 파산하시겠습니까?</p>
-              <p className="text-gray-600 mb-4">파산 신청 시 모든 보유 종목이 청산되고, <br />원화 자산이 1000만원으로 초기화됩니다.</p>
+              <p className="text-gray-600 mb-4">파산 신청 시 모든 보유 종목이 청산되고, <br />원화 자산이 1000만원으로 초기화됩니다. <br />파산 이후에도 거래 내역은 삭제되지 않습니다.</p>
             </div>
             
             {errorMessage && (
