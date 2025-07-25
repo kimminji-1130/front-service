@@ -443,6 +443,27 @@ class ApiClient {
         return { success: false, message: errorData.message || '파산 신청이 실패하였습니다.' };
       }
     }
+
+    // 미체결 주문 취소
+    async cancelPendingOrders(ordersToCancel: any[]) {
+      const token = tokenUtils.returnTokens().accessToken;
+      const res = await this.authFetch(`${this.baseURL}/api/v1/orders/pending`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(ordersToCancel),
+      });
+  
+      if (res.status === 200) {
+        const data = await res.text();
+        return { success: true, message: data || '주문 취소가 완료되었습니다.' };
+      } else {
+        const errorData = await res.json();
+        return { success: false, message: errorData.message || '주문 취소가 실패하였습니다.' };
+      }
+    }
     
 }
 
