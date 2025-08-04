@@ -58,11 +58,32 @@ export default function WaitOrders() {
   };
 
   // 일괄 취소 버튼 클릭 시
-  const handleCancelSelectedOrders = () => {
-    console.log("취소할 주문들: ", Array.from(selectedOrders));
+  const handleCancelSelectedOrders = async () => {
+    if (selectedOrders.size === 0) {
+      alert("취소할 주문을 선택해주세요.");
+      return;
+    }
 
-    // Reset the selected orders set
-    setSelectedOrders(new Set());
+    try {
+      // 선택된 주문들의 정보를 수집
+      const ordersToCancel = filteredOrders.filter(order => selectedOrders.has(order.uuid));
+      
+      // API 호출
+      const { success, message } = await apiClient.cancelPendingOrders(ordersToCancel);
+      
+      if (success) {
+        alert(message);
+        // 미체결 정보 새로고침
+        useAssetStore.getState().fetchPending();
+        // 선택된 주문 초기화
+        setSelectedOrders(new Set());
+      } else {
+        alert(message);
+      }
+    } catch (error) {
+      console.error("주문 취소 중 오류 발생:", error);
+      alert("주문 취소 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -103,7 +124,7 @@ export default function WaitOrders() {
                 className="bg-gray-100 text-gray-700 hover:bg-gray-200"
                 onClick={handleCancelSelectedOrders}
               >
-                일괄취소
+                주문취소
               </Button>
             </div>
 
